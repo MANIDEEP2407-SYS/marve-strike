@@ -14,7 +14,7 @@ import random
 
 pygame.init()
 pygame.display.set_caption("Card Strike: Elemental GUI")
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 
 grid = Grid(GRID_COLS, GRID_ROWS)
@@ -36,8 +36,8 @@ def create_player_card(slot_index: int) -> Card:
     card = Card(
         owner="player",
         name=f"Hero {slot_index+1}",
-        hp=80,
-        max_hp=80,
+        hp=100,
+        max_hp=100,
         attacks=attacks,
         move_range=3,
         element="fire_leaf",
@@ -52,7 +52,7 @@ def create_enemy_card(slot_index: int) -> Card:
         Attack("Bite", dmg=10, element=e),
         Attack("Claw", dmg=14, element='null'),
     ]
-    card = Card(owner="enemy", name=f"Beast {slot_index+1}", hp=70, max_hp=70, attacks=attacks, move_range=2, element=e, index=slot_index)
+    card = Card(owner="enemy", name=f"Beast {slot_index+1}", hp=100, max_hp=100, attacks=attacks, move_range=2, element=e, index=slot_index)
     card.display_hp = card.hp
     return card
 

@@ -20,6 +20,15 @@ def perform_attack_logic(ac, ar, tc, tr, atk, grid):
             if 0 <= nc < GRID_COLS:
                 flame_tiles.append([nc, ar, FPS * 3])
         anim_mgr.add_floating_text("🔥 TRAIL", *cell_center(ac, ar))
+        # Also damage the target
+        if target:
+            dmg = atk.dmg + random.randint(-2, 2)
+            target.hp -= dmg
+            target.flash_timer = 10
+            cx, cy = cell_center(tc, tr)
+            anim_mgr.add_floating_text(f"-{dmg}", cx, cy - 10)
+            if target.hp <= 0:
+                grid.tiles[tc][tr].card = None
         return
 
     # =====================================================
@@ -36,6 +45,15 @@ def perform_attack_logic(ac, ar, tc, tr, atk, grid):
                 else:
                     burn_effects.append([c, 10, FPS * 2, (x, y)])
                     anim_mgr.add_floating_text("-THORN", *cell_center(x, y), (0, 255, 0))
+        # Also damage the target
+        if target:
+            dmg = atk.dmg + random.randint(-2, 2)
+            target.hp -= dmg
+            target.flash_timer = 10
+            cx, cy = cell_center(tc, tr)
+            anim_mgr.add_floating_text(f"-{dmg}", cx, cy - 10)
+            if target.hp <= 0:
+                grid.tiles[tc][tr].card = None
         return
 
     # =====================================================
@@ -55,6 +73,15 @@ def perform_attack_logic(ac, ar, tc, tr, atk, grid):
                 else:
                     burn_effects.append([c, 10, FPS * 2, (x, y)])
                     anim_mgr.add_floating_text("-FUSION FIRE", *cell_center(x, y), E_FIRE)
+        # Also damage the target
+        if target:
+            dmg = atk.dmg + random.randint(-2, 2)
+            target.hp -= dmg
+            target.flash_timer = 10
+            cx, cy = cell_center(tc, tr)
+            anim_mgr.add_floating_text(f"-{dmg}", cx, cy - 10)
+            if target.hp <= 0:
+                grid.tiles[tc][tr].card = None
         return
 
     # =====================================================
@@ -67,7 +94,7 @@ def perform_attack_logic(ac, ar, tc, tr, atk, grid):
         cx, cy = cell_center(tc, tr)
         anim_mgr.add_floating_text(f"-{dmg}", cx, cy - 10)
 
-        if target.hp <= 0:
+        if target.hp < 0:
             grid.tiles[tc][tr].card = None
 
 

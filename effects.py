@@ -23,6 +23,8 @@ def process_flame_tiles(grid):
         if card and card.owner == "enemy":
             card.hp -= 10
             anim_mgr.add_floating_text("-10🔥", *cell_center(c, r), E_FIRE)
+            if card.hp < 0:
+                grid.tiles[c][r].card = None
 
 def process_regen():
     for eff in regen_effects[:]:
@@ -41,7 +43,7 @@ def process_burn(grid):
         eff[2] = t
         card.hp -= dmg
         anim_mgr.add_floating_text(f"-{dmg}", *cell_center(*pos), E_FIRE)
-        if card.hp <= 0:
+        if card.hp < 0:
             grid.tiles[pos[0]][pos[1]].card = None
         if t <= 0:
             burn_effects.remove(eff)

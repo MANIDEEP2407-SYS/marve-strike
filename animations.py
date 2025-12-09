@@ -75,6 +75,21 @@ class AnimationManager:
         })
         self.blocking = True
 
+    def trigger_move_anim(self, start_pos, end_pos, on_arrive_callback):
+        # Create a movement animation
+        sx, sy = start_pos
+        ex, ey = end_pos
+        # Store animation data
+        self.projectiles.append({
+            'start': (sx, sy),
+            'curr': [sx, sy],
+            'end': (ex, ey),
+            'element': 'move',  # Special element for movement
+            'progress': 0.0,
+            'callback': on_arrive_callback
+        })
+        self.blocking = True
+
     def add_floating_text(self, text, x, y, color=C_WHITE):
         self.floating_texts.append({'text': text, 'x': x, 'y': y, 'life': 60, 'color': color})
 
