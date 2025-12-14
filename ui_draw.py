@@ -38,6 +38,32 @@ def draw_ui(screen, grid, selected_pos, hovered_cell, game_state="playing"):
                 s.set_alpha(30)
                 s.fill(C_HIGHLIGHT)
                 screen.blit(s, (c*TILE_SIZE, r*TILE_SIZE))
+            # ===============================
+            # Attack range preview (PLAYER)
+            # ===============================
+            if selected_pos:
+                sc, sr = selected_pos
+                sel_card = grid.tiles[sc][sr].card
+                if sel_card and sel_card.owner == "player":
+                    max_range = max(atk.attack_range for atk in sel_card.attacks)
+                    dist = abs(sc - c) + abs(sr - r)
+                    if dist <= max_range:
+                        range_surf = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                        range_surf.fill((255, 255, 0, 25))  # yellow
+                        screen.blit(range_surf, (c*TILE_SIZE, r*TILE_SIZE))
+            # ===============================
+            # Move range preview (PLAYER)
+            # ===============================
+            if selected_pos:
+                sc, sr = selected_pos
+                sel_card = grid.tiles[sc][sr].card
+                if sel_card and sel_card.owner == "player":
+                    dist = abs(sc - c) + abs(sr - r)
+                    if dist <= sel_card.move_range:
+                        move_surf = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                        move_surf.fill((0, 200, 255, 30))  # cyan
+                        screen.blit(move_surf, (c*TILE_SIZE, r*TILE_SIZE))
+
 
     # Draw Cards
     for c in range(grid.cols):
@@ -48,6 +74,24 @@ def draw_ui(screen, grid, selected_pos, hovered_cell, game_state="playing"):
 
                 color = C_PLAYER if card.owner == "player" else C_ENEMY
                 draw_card_shape(screen, cx, cy, TILE_SIZE - 10, color, is_circle=True)
+
+                # Element ring
+                element_colors = {
+                    "fire": E_FIRE,
+                    "water": E_WATER,
+                    "leaf": E_LEAF,
+                    "null": E_NULL,
+                    "fire_leaf": E_FIRE
+                }
+                if card.element in element_colors:
+                    pygame.draw.circle(
+                        screen,
+                        element_colors[card.element],
+                        (cx, cy),
+                        TILE_SIZE//2 - 6,
+                        3
+                    )
+
 
                 label = f"P{card.index+1}" if card.owner == "player" else f"E{card.index+1}"
                 label_surface = FONT_BIG.render(label, True, C_WHITE)
@@ -97,6 +141,24 @@ def draw_ui(screen, grid, selected_pos, hovered_cell, game_state="playing"):
                 hp_text = FONT_MAIN.render(f"{card.hp}", True, (255,255,255))
                 screen.blit(hp_text, (cx - hp_text.get_width()//2, hp_y + 12))
 
+                # ===============================
+                # Attack tooltip (PLAYER)
+                # ===============================
+                if (c, r) == hovered_cell and card.owner == "player":
+                    y_offset = -TILE_SIZE // 2 - 45
+                    for atk in card.attacks:
+                        tip = FONT_MAIN.render(
+                            f"{atk.name} | DMG:{atk.dmg} | R:{atk.attack_range}",
+                            True,
+                            C_WHITE
+                        )
+                        screen.blit(
+                            tip,
+                            (cx - tip.get_width()//2, cy + y_offset)
+                        )
+                        y_offset -= 16
+
+
                 # Damage Flash (card blink)
                 if card.flash_timer > 0:
                     card.flash_timer -= 1
@@ -114,6 +176,15 @@ def draw_ui(screen, grid, selected_pos, hovered_cell, game_state="playing"):
 
     # VFX
     anim_mgr.draw(screen)
+    # ===============================
+    # Turn Indicator
+    # ===============================
+    turn_label = "ENEMY TURN" if anim_mgr.blocking else "PLAYER TURN"
+    turn_color = (255, 80, 80) if anim_mgr.blocking else C_HIGHLIGHT
+
+    turn_text = FONT_BIG.render(turn_label, True, turn_color)
+    screen.blit(turn_text, (10, HEIGHT - 45))
+
 
     # Victory/Defeat Screens
     if game_state == "victory":
