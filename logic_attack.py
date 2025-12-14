@@ -30,22 +30,33 @@ def perform_attack_logic(ac, ar, tc, tr, atk, grid, dist=0):
     # 1. Burning Trail (FIRE)
     # =====================================================
     if atk.name == "Burning Trail":
+        # Direction of trail
         dx = 1 if tc > ac else -1
+
+        # Create burning tiles (area denial)
         for i in range(1, 6):
             nc = ac + dx * i
-            if 0 <= nc < GRID_COLS:
-                flame_tiles.append([nc, ar, FPS * 3])
-        anim_mgr.add_floating_text("🔥 TRAIL", *cell_center(ac, ar))
-        # Also damage the target
+            if grid.in_bounds(nc, ar):
+                # Avoid stacking same tile infinitely
+                if not any(ft[0] == nc and ft[1] == ar for ft in flame_tiles):
+                    flame_tiles.append([nc, ar, FPS * 3])  # 3 seconds
+
+        anim_mgr.add_floating_text("🔥 FIRE TRAIL", *cell_center(ac, ar), E_FIRE)
+
+        # Reduced upfront damage (trail is main threat)
         if target:
-            dmg = base_dmg + random.randint(-2, 2)
+            dmg = max(1, int(base_dmg * 0.5))
             target.hp -= dmg
             target.flash_timer = 10
+
             cx, cy = cell_center(tc, tr)
-            anim_mgr.add_floating_text(f"-{dmg}", cx, cy - 10)
+            anim_mgr.add_floating_text(f"-{dmg}", cx, cy - 10, E_FIRE)
+
             if target.hp <= 0:
                 grid.tiles[tc][tr].card = None
+
         return
+
 
     # =====================================================
     # 2. Nature’s Embrace (LEAF)

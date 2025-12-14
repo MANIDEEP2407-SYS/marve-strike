@@ -15,10 +15,24 @@ def draw_card_shape(surf, x, y, size, color, is_circle=False):
         pygame.draw.rect(surf, color, rect, border_radius=12)
 
 
-def draw_ui(screen, grid, selected_pos, hovered_cell, game_state="playing"):
+def draw_ui(screen, grid, selected_pos, hovered_cell, game_state="playing",
+            placing_phase=False, selected_player_element="fire"):
+
+    
     screen.fill(C_BG)
 
     # Draw Grid
+    # ===============================
+    # Player Variant Selection UI
+    # ===============================
+    if placing_phase:
+        variant_text = FONT_BIG.render(
+            f"Select Element: {selected_player_element.upper()} (1–4)",
+            True,
+            C_HIGHLIGHT
+        )
+        screen.blit(variant_text, (WIDTH//2 - variant_text.get_width()//2, HEIGHT - 80))
+
     for c in range(GRID_COLS):
         for r in range(GRID_ROWS):
             rect = pygame.Rect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE)
@@ -29,7 +43,8 @@ def draw_ui(screen, grid, selected_pos, hovered_cell, game_state="playing"):
                 if ft[0] == c and ft[1] == r:
                     alpha = int((ft[2] / (FPS * 3)) * 255)
                     flame = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                    pygame.draw.circle(flame, (*E_FIRE, alpha), (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//3)
+                    pygame.draw.circle(flame, (*E_FIRE, alpha), (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//2)
+                    pygame.draw.circle(flame, (255, 200, 50, alpha//2), (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//3)
                     screen.blit(flame, (c*TILE_SIZE, r*TILE_SIZE))
 
             # Hover effect

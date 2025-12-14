@@ -20,9 +20,10 @@ def process_flame_tiles(grid):
             continue
 
         card = grid.tiles[c][r].card
-        if card and card.owner == "enemy":
-            card.hp -= 10
-            anim_mgr.add_floating_text("-10🔥", *cell_center(c, r), E_FIRE)
+        if card:
+            card.hp -= 5  # light DOT
+            card.hp = max(1, card.hp)  # cannot kill
+            anim_mgr.add_floating_text("-5🔥", *cell_center(c, r), E_FIRE)
             if card.hp < 0:
                 grid.tiles[c][r].card = None
 
