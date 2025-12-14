@@ -1,4 +1,5 @@
 import pygame
+import random
 from config import *
 from colors import *
 from fonts import FONT_BIG, FONT_MAIN
@@ -7,217 +8,222 @@ from animations import anim_mgr
 from effects import flame_tiles
 
 
+# -------------------------------------------------
+# CONFETTI SYSTEM
+# -------------------------------------------------
+confetti_particles = []
+
+def spawn_confetti():
+    confetti_particles.clear()
+    for _ in range(120):
+        confetti_particles.append({
+            "x": random.randint(0, WIDTH),
+            "y": random.randint(-HEIGHT, 0),
+            "vy": random.uniform(1.5, 4.0),
+            "color": random.choice(C_CONFETTI),
+            "size": random.randint(4, 7)
+        })
+
+
+def update_and_draw_confetti(screen):
+    for p in confetti_particles:
+        p["y"] += p["vy"]
+        if p["y"] > HEIGHT:
+            p["y"] = random.randint(-50, 0)
+            p["x"] = random.randint(0, WIDTH)
+        pygame.draw.circle(
+            screen,
+            p["color"],
+            (int(p["x"]), int(p["y"])),
+            p["size"]
+        )
+
+
+# -------------------------------------------------
+# Helper: Card Shape
+# -------------------------------------------------
 def draw_card_shape(surf, x, y, size, color, is_circle=False):
-    rect = pygame.Rect(x - size//2, y - size//2, size, size)
+    rect = pygame.Rect(x - size // 2, y - size // 2, size, size)
     if is_circle:
-        pygame.draw.circle(surf, color, (x, y), size//2)
+        pygame.draw.circle(surf, color, (x, y), size // 2)
     else:
         pygame.draw.rect(surf, color, rect, border_radius=12)
 
 
-def draw_ui(screen, grid, selected_pos, hovered_cell, game_state="playing",
-            placing_phase=False, selected_player_element="fire"):
-
-    
+# -------------------------------------------------
+# MAIN UI DRAW FUNCTION
+# -------------------------------------------------
+def draw_ui(
+    screen,
+    grid,
+    selected_pos,
+    hovered_cell,
+    game_state="playing",
+    placing_phase=False,
+    selected_player_element="fire"
+):
     screen.fill(C_BG)
 
-    # Draw Grid
-    # ===============================
-    # Player Variant Selection UI
-    # ===============================
-    if placing_phase:
-        variant_text = FONT_BIG.render(
-            f"Select Element: {selected_player_element.upper()} (1–4)",
-            True,
-            C_HIGHLIGHT
-        )
-        screen.blit(variant_text, (WIDTH//2 - variant_text.get_width()//2, HEIGHT - 80))
-
+    # =================================================
+    # GRID + TILE EFFECTS
+    # =================================================
     for c in range(GRID_COLS):
         for r in range(GRID_ROWS):
-            rect = pygame.Rect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE)
+            rect = pygame.Rect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE)
             pygame.draw.rect(screen, C_GRID, rect, 1)
 
-            # Flame Tiles
+            # Flame tiles
             for ft in flame_tiles:
                 if ft[0] == c and ft[1] == r:
                     alpha = int((ft[2] / (FPS * 3)) * 255)
                     flame = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                    pygame.draw.circle(flame, (*E_FIRE, alpha), (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//2)
-                    pygame.draw.circle(flame, (255, 200, 50, alpha//2), (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//3)
-                    screen.blit(flame, (c*TILE_SIZE, r*TILE_SIZE))
+                    pygame.draw.circle(
+                        flame, (*E_FIRE, alpha),
+                        (TILE_SIZE // 2, TILE_SIZE // 2),
+                        TILE_SIZE // 2
+                    )
+                    pygame.draw.circle(
+                        flame, (255, 200, 50, alpha // 2),
+                        (TILE_SIZE // 2, TILE_SIZE // 2),
+                        TILE_SIZE // 3
+                    )
+                    screen.blit(flame, (c * TILE_SIZE, r * TILE_SIZE))
 
-            # Hover effect
+            # Hover highlight
             if (c, r) == hovered_cell:
                 s = pygame.Surface((TILE_SIZE, TILE_SIZE))
-                s.set_alpha(30)
+                s.set_alpha(40)
                 s.fill(C_HIGHLIGHT)
-                screen.blit(s, (c*TILE_SIZE, r*TILE_SIZE))
-            # ===============================
-            # Attack range preview (PLAYER)
-            # ===============================
+                screen.blit(s, (c * TILE_SIZE, r * TILE_SIZE))
+
+            # Move + attack range preview
             if selected_pos:
                 sc, sr = selected_pos
-                sel_card = grid.tiles[sc][sr].card
-                if sel_card and sel_card.owner == "player":
-                    max_range = max(atk.attack_range for atk in sel_card.attacks)
+                card = grid.tiles[sc][sr].card
+                if card and card.owner == "player":
                     dist = abs(sc - c) + abs(sr - r)
+
+                    if dist <= card.move_range:
+                        m = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                        m.fill((0, 200, 255, 25))
+                        screen.blit(m, (c * TILE_SIZE, r * TILE_SIZE))
+
+                    max_range = max(atk.attack_range for atk in card.attacks)
                     if dist <= max_range:
-                        range_surf = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                        range_surf.fill((255, 255, 0, 25))  # yellow
-                        screen.blit(range_surf, (c*TILE_SIZE, r*TILE_SIZE))
-            # ===============================
-            # Move range preview (PLAYER)
-            # ===============================
-            if selected_pos:
-                sc, sr = selected_pos
-                sel_card = grid.tiles[sc][sr].card
-                if sel_card and sel_card.owner == "player":
-                    dist = abs(sc - c) + abs(sr - r)
-                    if dist <= sel_card.move_range:
-                        move_surf = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                        move_surf.fill((0, 200, 255, 30))  # cyan
-                        screen.blit(move_surf, (c*TILE_SIZE, r*TILE_SIZE))
+                        a = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                        a.fill((255, 255, 0, 18))
+                        screen.blit(a, (c * TILE_SIZE, r * TILE_SIZE))
 
-
-    # Draw Cards
+    # =================================================
+    # DRAW CARDS
+    # =================================================
     for c in range(grid.cols):
         for r in range(grid.rows):
             card = grid.tiles[c][r].card
-            if card:
-                cx, cy = cell_center(c, r)
+            if not card:
+                continue
 
-                color = C_PLAYER if card.owner == "player" else C_ENEMY
-                draw_card_shape(screen, cx, cy, TILE_SIZE - 10, color, is_circle=True)
+            cx, cy = cell_center(c, r)
+            base_color = C_PLAYER if card.owner == "player" else C_ENEMY
+            draw_card_shape(screen, cx, cy, TILE_SIZE - 10, base_color, True)
 
-                # Element ring
-                element_colors = {
-                    "fire": E_FIRE,
-                    "water": E_WATER,
-                    "leaf": E_LEAF,
-                    "null": E_NULL,
-                    "fire_leaf": E_FIRE
-                }
-                if card.element in element_colors:
-                    pygame.draw.circle(
-                        screen,
-                        element_colors[card.element],
-                        (cx, cy),
-                        TILE_SIZE//2 - 6,
-                        3
-                    )
+            element_colors = {
+                "fire": E_FIRE,
+                "water": E_WATER,
+                "leaf": E_LEAF,
+                "null": E_NULL
+            }
+            pygame.draw.circle(
+                screen,
+                element_colors.get(card.element, C_WHITE),
+                (cx, cy),
+                TILE_SIZE // 2 - 6,
+                3
+            )
 
+            label = f"P{card.index+1}" if card.owner == "player" else f"E{card.index+1}"
+            txt = FONT_BIG.render(label, True, C_WHITE)
+            screen.blit(txt, (cx - txt.get_width() // 2, cy - txt.get_height() // 2))
 
-                label = f"P{card.index+1}" if card.owner == "player" else f"E{card.index+1}"
-                label_surface = FONT_BIG.render(label, True, C_WHITE)
-                screen.blit(label_surface, (cx - label_surface.get_width()//2, cy - label_surface.get_height()//2))
+            # HP bar
+            hp_ratio = max(0, card.display_hp / card.max_hp)
+            bar_w, bar_h = 70, 9
+            hx = cx - bar_w // 2
+            hy = cy - TILE_SIZE // 2 - 28
+            pygame.draw.rect(screen, (0, 0, 0), (hx, hy, bar_w, bar_h), border_radius=3)
+            pygame.draw.rect(
+                screen, (0, 200, 0),
+                (hx, hy, int(bar_w * hp_ratio), bar_h),
+                border_radius=3
+            )
 
-                # ===============================
-                #         ADVANCED HP BAR
-                # ===============================
+            hp_txt = FONT_MAIN.render(str(card.hp), True, C_WHITE)
+            screen.blit(hp_txt, (cx - hp_txt.get_width() // 2, hy + 12))
 
-                # Animated HP ratio
-                hp_ratio = max(0, card.display_hp / card.max_hp)
-
-                # Bar position
-                hp_bar_width = 70
-                hp_bar_height = 9
-                hp_x = cx - hp_bar_width // 2
-                hp_y = cy - TILE_SIZE // 2 - 28
-
-                # Background
-                pygame.draw.rect(screen, (0,0,0), (hp_x, hp_y, hp_bar_width, hp_bar_height), border_radius=3)
-
-                # GRADIENT BAR
-                for i in range(int(hp_ratio * hp_bar_width)):
-                    t = i / hp_bar_width
-                    # Green → Yellow → Red gradient
-                    if t > 0.6:
-                        color = (255, int(255 * (1 - t)), 0)
-                    elif t > 0.3:
-                        color = (255, 200, 0)
-                    else:
-                        color = (0, 255, 0)
-
-                    pygame.draw.line(screen, color, (hp_x + i, hp_y), (hp_x + i, hp_y + hp_bar_height))
-
-                # Critical HP Glow
-                if hp_ratio < 0.25:
-                    glow_surf = pygame.Surface((hp_bar_width, hp_bar_height), pygame.SRCALPHA)
-                    pygame.draw.rect(glow_surf, (255,0,0,120), (0,0,hp_bar_width,hp_bar_height), border_radius=3)
-                    screen.blit(glow_surf, (hp_x, hp_y))
-
-                # Shield overlay
-                if card.shield > 0:
-                    shield_ratio = min(1, card.shield / 40)
-                    pygame.draw.rect(screen, (100,200,255), (hp_x, hp_y, int(shield_ratio * hp_bar_width), 3), border_radius=2)
-
-                # HP TEXT
-                hp_text = FONT_MAIN.render(f"{card.hp}", True, (255,255,255))
-                screen.blit(hp_text, (cx - hp_text.get_width()//2, hp_y + 12))
-
-                # ===============================
-                # Attack tooltip (PLAYER)
-                # ===============================
-                if (c, r) == hovered_cell and card.owner == "player":
-                    y_offset = -TILE_SIZE // 2 - 45
-                    for atk in card.attacks:
-                        tip = FONT_MAIN.render(
-                            f"{atk.name} | DMG:{atk.dmg} | R:{atk.attack_range}",
-                            True,
-                            C_WHITE
-                        )
-                        screen.blit(
-                            tip,
-                            (cx - tip.get_width()//2, cy + y_offset)
-                        )
-                        y_offset -= 16
-
-
-                # Damage Flash (card blink)
-                if card.flash_timer > 0:
-                    card.flash_timer -= 1
-                    flash_overlay = pygame.Surface((TILE_SIZE-10, TILE_SIZE-10), pygame.SRCALPHA)
-                    pygame.draw.rect(flash_overlay, (255,50,50,150), (0,0,TILE_SIZE-10,TILE_SIZE-10), border_radius=12)
-                    screen.blit(flash_overlay, (cx-(TILE_SIZE-10)//2, cy-(TILE_SIZE-10)//2))
-
-                # Rare Card Border
-                if card.rarity == "rare":
-                    pygame.draw.circle(screen, (0,255,255), (cx, cy), TILE_SIZE//2, 4)
-                elif card.rarity == "epic":
-                    pygame.draw.circle(screen, (255,0,255), (cx, cy), TILE_SIZE//2, 5)
-                elif card.rarity == "legendary":
-                    pygame.draw.circle(screen, (255,220,0), (cx, cy), TILE_SIZE//2, 6)
-
-    # VFX
+    # =================================================
+    # ANIMATIONS
+    # =================================================
     anim_mgr.draw(screen)
-    # ===============================
-    # Turn Indicator
-    # ===============================
-    turn_label = "ENEMY TURN" if anim_mgr.blocking else "PLAYER TURN"
-    turn_color = (255, 80, 80) if anim_mgr.blocking else C_HIGHLIGHT
 
-    turn_text = FONT_BIG.render(turn_label, True, turn_color)
-    screen.blit(turn_text, (10, HEIGHT - 45))
-
-
-    # Victory/Defeat Screens
+    # =================================================
+    # CONFETTI (VICTORY ONLY)
+    # =================================================
     if game_state == "victory":
-        # Confetti
-        import random
-        for _ in range(20):
-            x = random.randint(0, WIDTH)
-            y = random.randint(0, HEIGHT)
-            color = random.choice(C_CONFETTI)
-            pygame.draw.circle(screen, color, (x, y), 5)
-        # Congratulations message
-        msg = FONT_BIG.render("Congratulations! You Won!", True, C_VICTORY)
-        screen.blit(msg, (WIDTH//2 - msg.get_width()//2, HEIGHT//2 - msg.get_height()//2))
+        if not confetti_particles:
+            spawn_confetti()
+        update_and_draw_confetti(screen)
+
+    # =================================================
+    # BOTTOM INSTRUCTION BAR
+    # =================================================
+    panel_y = GRID_ROWS * TILE_SIZE
+    panel_h = HEIGHT - panel_y
+
+    panel = pygame.Surface((WIDTH, panel_h), pygame.SRCALPHA)
+    panel.fill((20, 20, 40, 220))
+    screen.blit(panel, (0, panel_y))
+
+    title = FONT_BIG.render("GAME INSTRUCTIONS", True, C_SELECT)
+    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, panel_y + 8))
+
+    turn = "ENEMY TURN" if anim_mgr.blocking else "PLAYER TURN"
+    turn_color = C_ENEMY if anim_mgr.blocking else C_PLAYER
+    turn_txt = FONT_MAIN.render(f"Turn: {turn}", True, turn_color)
+    screen.blit(turn_txt, (20, panel_y + 40))
+
+    if placing_phase:
+        place_txt = FONT_MAIN.render(
+            f"Placement: 1=Fire  2=Water  3=Leaf  4=Null | Selected: {selected_player_element.upper()}",
+            True, C_HIGHLIGHT
+        )
+        screen.blit(place_txt, (20, panel_y + 65))
+
+    controls = [
+        "Move: Click Hero → Click Tile",
+        "Target Enemy: Hold 1 / 2 / 3",
+        "Enemy Turn: Press M"
+    ]
+    y = panel_y + 95
+    for line in controls:
+        screen.blit(FONT_MAIN.render(line, True, C_WHITE), (20, y))
+        y += 20
+
+    atk_x = WIDTH // 2 + 40
+    atk_y = panel_y + 40
+    screen.blit(FONT_MAIN.render("Attack Keys", True, C_HIGHLIGHT), (atk_x, atk_y))
+
+    atk_lines = ["Hero 1: Q W E", "Hero 2: A S D", "Hero 3: Z X C"]
+    y = atk_y + 25
+    for line in atk_lines:
+        screen.blit(FONT_MAIN.render(line, True, C_WHITE), (atk_x, y))
+        y += 20
+
+    # =================================================
+    # END GAME TEXT
+    # =================================================
+    if game_state == "victory":
+        msg = FONT_BIG.render("YOU WIN!", True, C_VICTORY)
+        screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2))
     elif game_state == "defeat":
-        # Dark overlay
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 150))
-        screen.blit(overlay, (0, 0))
-        # Defeated message
-        msg = FONT_BIG.render("Defeated! Better luck next time.", True, C_DEFEAT)
-        screen.blit(msg, (WIDTH//2 - msg.get_width()//2, HEIGHT//2 - msg.get_height()//2))
+        msg = FONT_BIG.render("YOU LOSE!", True, C_DEFEAT)
+        screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2))
