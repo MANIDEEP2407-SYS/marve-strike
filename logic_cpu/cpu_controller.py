@@ -64,16 +64,16 @@ def calculate_attack_score(e_card, players, grid, e_pos):
     element_bonus = 1
 
     # Can kill bonus
-    kill_bonus = 10 if dmg >= target_card.hp else 0
+    kill_bonus = 15 if dmg >= target_card.hp else 0
 
     # Consider player attacks: if enemy is weak, higher score to attack preemptively
     enemy_weak = 1 if e_card.hp < e_card.max_hp * 0.5 else 0
     self_hp_ratio = e_card.hp / e_card.max_hp
-    survival_penalty = (1 - self_hp_ratio) * 10
+    survival_penalty = (1 - self_hp_ratio) * 6
 
     # Distance penalty (don’t attack from far)
     dist = abs(e_pos[0] - target_pos[0]) + abs(e_pos[1] - target_pos[1])
-    range_penalty = max(0, dist - atk.attack_range) * 5
+    range_penalty = max(0, dist - atk.attack_range) * 3
 
     score = (
         dmg * (1 + health_factor)
@@ -118,10 +118,10 @@ def cpu_turn(grid):
         if e_card.element == "fire":
             attack_score *= 1.2   # Fire enemies are aggressive
         elif e_card.element in ["water", "leaf"]:
-            move_score *= 1.2     # Water/Leaf prefer positioning & survival
+            move_score *= 1.1     # Water/Leaf prefer positioning & survival
 
 
-        if attack_score > move_score:
+        if attack_score > move_score+1:
             # Perform attack
             target_pos = greedy_best_target(e_pos,players, grid)
             if target_pos:
