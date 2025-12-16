@@ -1,14 +1,14 @@
 # greedy_fire.py
 import random
 
-def greedy_fire_spread(e_pos, players, grid):
+def greedy_fire_spread(e_pos, players, grid,rng):
     directions = [(1, 0), (-1, 0)]
     best_dir = (1, 0)
     max_hits = -1
 
     for dx, dy in directions:
         hits = 0
-        for i in range(1, 6):
+        for i in range(1, rng+1):
             nc = e_pos[0] + dx * i
             nr = e_pos[1] + dy * i
             if grid.in_bounds(nc, nr) and grid.tiles[nc][nr].card and grid.tiles[nc][nr].card.owner == "player":
@@ -24,4 +24,5 @@ def greedy_fire_spread(e_pos, players, grid):
         if grid.in_bounds(nc, nr) and grid.tiles[nc][nr].card and grid.tiles[nc][nr].card.owner == "player":
             return (nc, nr)
 
-    return random.choice(players)
+    return random.choice(players) if players else None
+

@@ -1,10 +1,20 @@
 # greedy_move.py
-def greedy_nearest_move(e_pos, players, grid):
+def greedy_nearest_move(e_pos, players, grid, move_range):
     possible_moves = []
-    for c in range(max(0, e_pos[0] - 2), min(grid.cols, e_pos[0] + 3)):
-        for r in range(max(0, e_pos[1] - 2), min(grid.rows, e_pos[1] + 3)):
-            if grid.tiles[c][r].card is None:
-                possible_moves.append((c, r))
+
+    for c in range(
+        max(0, e_pos[0] - move_range),
+        min(grid.cols, e_pos[0] + move_range + 1)
+    ):
+        for r in range(
+            max(0, e_pos[1] - move_range),
+            min(grid.rows, e_pos[1] + move_range + 1)
+        ):
+            # Manhattan distance constraint
+            if abs(c - e_pos[0]) + abs(r - e_pos[1]) <= move_range:
+                if grid.tiles[c][r].card is None:
+                    possible_moves.append((c, r))
+
 
     if not possible_moves:
         return e_pos
@@ -15,15 +25,21 @@ def greedy_nearest_move(e_pos, players, grid):
     IDEAL_RANGE = 3  # optimal distance for your game (ranged-heavy)
 
     for (c, r) in possible_moves:
+        total_score = 0
         for (px, py) in players:
             d = abs(px - c) + abs(py - r)
+            total_score += abs(d - IDEAL_RANGE)
 
-            # Prefer tiles that place enemy at an ideal attack distance
-            score = abs(d - IDEAL_RANGE)
+        edge_penalty = 2 if c in (0, grid.cols-1) or r in (0, grid.rows-1) else 0
+        score = total_score + edge_penalty
 
-            if score < best_score:
-                best_score = score
-                best_move = (c, r)
+        if score < best_score:
+            best_score = score
+            best_move = (c, r)
+
+    # Prevent useless movement
+    if best_move == e_pos:
+        return e_pos
 
     return best_move
 

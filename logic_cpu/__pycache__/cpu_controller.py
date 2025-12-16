@@ -5,8 +5,11 @@ from logic_attack import perform_attack_logic
 
 from logic_cpu.greedy_move import greedy_nearest_move
 from logic_cpu.greedy_escape import greedy_escape_move
+from logic_cpu.greedy_attack_max import greedy_max_damage_attack
 from logic_cpu.greedy_target_weakest import greedy_best_target
 from logic_cpu.greedy_element import greedy_element_attack
+from logic_cpu.greedy_fire import greedy_fire_spread
+from logic_cpu.greedy_heal import greedy_heal_distribution
 
 
 # --------------------------------------------------
@@ -21,7 +24,7 @@ def move_callback(grid, e_pos, new_pos, e_card):
 # ENEMY PRIORITY (WHO GETS TO ACT)
 # --------------------------------------------------
 def enemy_priority(e_pos, e_card, players, grid):
-    # 1️⃣ Can attack immediately?
+    # 1️⃣ Can attack immediately? (highest priority)
     target = greedy_best_target(e_pos, players, grid)
     if target:
         atk = greedy_element_attack(e_card, target, grid)
@@ -29,20 +32,7 @@ def enemy_priority(e_pos, e_card, players, grid):
         if dist <= atk.attack_range:
             return 1000
 
-    # 1️⃣b SUPPORT / HEALER PRIORITY (leaf)
-    if e_card.element == "leaf":
-        for c in range(grid.cols):
-            for r in range(grid.rows):
-                ally = grid.tiles[c][r].card
-                if (
-                    ally
-                    and ally.owner == "enemy"
-                    and ally.hp < ally.max_hp * 0.5
-                    and abs(c - e_pos[0]) + abs(r - e_pos[1]) <= e_card.move_range + 2
-                ):
-                    return 900
-
-    # 2️⃣ Low HP enemies react more urgently
+    # 2️⃣ Low HP enemies must react
     hp_factor = 1 - (e_card.hp / e_card.max_hp)
 
     # 3️⃣ Distance to nearest player
@@ -64,9 +54,9 @@ def calculate_move_score(e_pos, players, grid, e_card):
     current_dist = min(dist(e_pos, p) for p in players)
 
     if e_card.element in ["water", "leaf"]:
-        new_pos = greedy_escape_move(e_pos, players, grid, e_card.move_range)
+        new_pos = greedy_escape_move(e_pos, players, grid)
     else:
-        new_pos = greedy_nearest_move(e_pos, players, grid, e_card.move_range)
+        new_pos = greedy_nearest_move(e_pos, players, grid)
 
     # ❌ useless movement
     if new_pos == e_pos:
@@ -129,7 +119,7 @@ def cpu_turn(grid):
     if not players or not enemies:
         return
 
-    # ✅ Pick best enemy (fixes corner lock)
+    # ✅ PICK BEST ENEMY (FIXES CORNER LOCK)
     best_enemy = None
     best_score = -9999
 
@@ -149,7 +139,7 @@ def cpu_turn(grid):
     move_score = calculate_move_score(e_pos, players, grid, e_card)
     attack_score = calculate_attack_score(e_card, players, grid, e_pos)
 
-    # 🔥 Emergency aggression
+    # 🔥 Emergency response if attacked
     if e_card.hp < e_card.max_hp * 0.6:
         attack_score += 8
 
@@ -158,31 +148,32 @@ def cpu_turn(grid):
     # --------------------------------------------------
     if attack_score > move_score + 1:
         target_pos = greedy_best_target(e_pos, players, grid)
-        if target_pos:
-            atk = greedy_element_attack(e_card, target_pos, grid)
-            dist = abs(e_pos[0] - target_pos[0]) + abs(e_pos[1] - target_pos[1])
+        if not target_pos:
+            return
 
-            if dist <= atk.attack_range:
-                anim_mgr.trigger_attack_anim(
-                    cell_center(*e_pos),
-                    cell_center(*target_pos),
-                    atk.element,
-                    lambda: perform_attack_logic(
-                        e_pos[0], e_pos[1],
-                        target_pos[0], target_pos[1],
-                        atk, grid, dist
-                    )
+        atk = greedy_element_attack(e_card, target_pos, grid)
+        dist = abs(e_pos[0] - target_pos[0]) + abs(e_pos[1] - target_pos[1])
+
+        if dist <= atk.attack_range:
+            anim_mgr.trigger_attack_anim(
+                cell_center(*e_pos),
+                cell_center(*target_pos),
+                atk.element,
+                lambda: perform_attack_logic(
+                    e_pos[0], e_pos[1],
+                    target_pos[0], target_pos[1],
+                    atk, grid, dist
                 )
-                return
-    # ❗ fall through to movement if attack not possible
+            )
+            return
 
     # --------------------------------------------------
     # MOVE
     # --------------------------------------------------
     if e_card.element in ["water", "leaf"]:
-        new_pos = greedy_escape_move(e_pos, players, grid, e_card.move_range)
+        new_pos = greedy_escape_move(e_pos, players, grid)
     else:
-        new_pos = greedy_nearest_move(e_pos, players, grid, e_card.move_range)
+        new_pos = greedy_nearest_move(e_pos, players, grid)
 
     if new_pos != e_pos:
         anim_mgr.trigger_move_anim(
