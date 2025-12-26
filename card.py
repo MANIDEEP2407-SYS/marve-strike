@@ -17,6 +17,8 @@ class Card:
     display_hp: int = None   # animated hp
     rarity: str = "normal"   # normal / rare / epic / legendary
     heal_flash_timer: int = 0
+    healed_once: bool = False   # 🔥 HEAL ONLY ONCE
+
 
 @dataclass
 class Tile:

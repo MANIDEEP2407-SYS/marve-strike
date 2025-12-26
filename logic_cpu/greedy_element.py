@@ -11,6 +11,8 @@ def greedy_element_attack(e_card, target_pos, grid):
     best_score = -1
     best_attack = None
     for atk in e_card.attacks:
+        if atk.element != e_card.element:
+            continue
         score = atk.dmg * element_score(atk.element, target_card.element)
         if score > best_score:
             best_score = score
