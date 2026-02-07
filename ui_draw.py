@@ -4,7 +4,7 @@ import random
 from config import *
 from colors import *
 from fonts import FONT_BIG, FONT_MAIN
-from grid import cell_center
+from game_grid import cell_center
 from animations import anim_mgr
 from effects import flame_tiles
 
@@ -129,7 +129,7 @@ def draw_ui(
                 sc, sr = selected_pos
                 sel_card = grid.tiles[sc][sr].card
                 if sel_card and sel_card.owner == "player":
-                    from grid import bfs_reachable
+                    from game_grid import bfs_reachable
 
                     # MOVE RANGE (graph-based)
                     move_reachable = bfs_reachable((sc, sr), sel_card.move_range, grid)

@@ -2,14 +2,14 @@ import pygame
 import random
 
 from config import *
-from grid import Grid, cell_center
+from game_grid import Grid, cell_center
 from animations import anim_mgr
 from effects import (
     flame_tiles, regen_effects, burn_effects,
     process_flame_tiles, process_regen, process_burn
 )
 from logic_attack import initiate_player_attack
-from logic_cpu.cpu_controller import cpu_turn
+from logic_cpu.advanced_cpu import advanced_cpu_turn as cpu_turn
 from ui_draw import draw_ui
 from card import Card
 from attack import Attack
@@ -136,6 +136,15 @@ def check_win_lose(grid):
 
 
 # -------------------------------------------------
+# STEALING PHASE SETUP
+# -------------------------------------------------
+from stealing_phase import StealingPhase
+stealing_phase = StealingPhase(screen)
+stealing_phase_active = True
+player_final_cards = []
+cpu_final_cards = []
+
+# -------------------------------------------------
 # MAIN LOOP
 # -------------------------------------------------
 game_state = "playing"
@@ -143,6 +152,35 @@ running = True
 
 while running:
     clock.tick(FPS)
+    # -----------------------------
+    # STEALING PHASE (runs first)
+    # -----------------------------
+    if stealing_phase_active:
+        stealing_phase.draw()
+        pygame.display.flip()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            
+            if event.type == pygame.MOUSEMOTION:
+                stealing_phase.handle_mouse_move(pygame.mouse.get_pos())
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                stealing_phase.handle_click(pygame.mouse.get_pos())
+            
+            if event.type == pygame.USEREVENT + 1:  # CPU timer
+                pygame.time.set_timer(pygame.USEREVENT + 1, 0)  # Stop timer
+                stealing_phase.cpu_turn()
+            
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                if stealing_phase.phase_complete:
+                    # Get final decks and switch to placement
+                    player_final_cards, cpu_final_cards = stealing_phase.get_final_decks()
+                    stealing_phase_active = False
+                    placing_phase = True
+        
+        continue  # Skip rest of loop during stealing phase
 
     # -----------------------------
     # UPDATE LOGIC
@@ -189,10 +227,14 @@ while running:
                 continue
 
             if placing_phase:
-                if grid.tiles[c][r].card is None:
-                    grid.tiles[c][r].card = create_player_card(
-                        placed_count, selected_player_element
-                    )
+                if grid.tiles[c][r].card is None and placed_count < len(player_final_cards):
+                    # Use card from stealing phase if available
+                    if player_final_cards:
+                        grid.tiles[c][r].card = player_final_cards[placed_count]
+                    else:
+                        grid.tiles[c][r].card = create_player_card(
+                            placed_count, selected_player_element
+                        )
                     placed_count += 1
                     anim_mgr.add_particle(*cell_center(c, r), "leaf")
 
@@ -204,10 +246,12 @@ while running:
                             for y in range(GRID_ROWS)
                             if not grid.tiles[x][y].card
                         ]
-                        for i in range(3):
-                            ex, ey = random.choice(empties)
-                            grid.tiles[ex][ey].card = create_enemy_card(i)
-                            empties.remove((ex, ey))
+                        # Place CPU cards from stealing phase
+                        for i, cpu_card in enumerate(cpu_final_cards):
+                            if empties:
+                                ex, ey = random.choice(empties)
+                                grid.tiles[ex][ey].card = cpu_card
+                                empties.remove((ex, ey))
 
             else:
                 clicked = grid.tiles[c][r].card
@@ -264,10 +308,36 @@ while running:
         grid,
         selected_pos,
         hovered_cell,
-        game_state,
         placing_phase,
         selected_player_element
     )
+
+    if game_state != "playing":
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 200)) # Darken background
+        screen.blit(overlay, (0, 0))
+        
+
+        
+        if game_state == "victory":
+            text = "🏆 YOU WON! 🏆"
+            color = (100, 255, 100)
+            print("GAME OVER: PLAYER WON!")
+        else:
+            text = "💀 CPU WON! 💀"
+            color = (255, 50, 50)
+            print("GAME OVER: CPU WON!")
+            
+        txt_surf = FONT_TITLE.render(text, True, color)
+        
+        # Shadow
+        shadow = FONT_TITLE.render(text, True, (0, 0, 0))
+        screen.blit(shadow, (WIDTH//2 - txt_surf.get_width()//2 + 4, HEIGHT//2 - txt_surf.get_height()//2 + 4))
+        
+        screen.blit(txt_surf, (WIDTH//2 - txt_surf.get_width()//2, HEIGHT//2 - txt_surf.get_height()//2))
+
+        # Stop logic updates
+        anim_mgr.blocking = True
 
     pygame.display.flip()
 

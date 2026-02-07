@@ -1,7 +1,7 @@
 import pygame
 from config import FPS
 from colors import E_FIRE, E_LEAF
-from grid import cell_center
+from game_grid import cell_center
 from animations import anim_mgr
 
 # ==================================================

@@ -1,5 +1,5 @@
 import random
-from grid import cell_center
+from game_grid import cell_center
 from animations import anim_mgr
 from logic_attack import perform_attack_logic
 

@@ -1,0 +1,1266 @@
+{
+  "cards": [
+    {
+      "id": "e74bee37",
+      "name": "Ember Vine",
+      "element": "fire",
+      "secondary": "leaf",
+      "hp": 39,
+      "speed": 8,
+      "move": 3,
+      "asset": "1.jpg",
+      "attacks": [
+        {
+          "name": "Ember Lash",
+          "element": "fire",
+          "damage": 14,
+          "range": 3,
+          "animation": "projectile_fire",
+          "description": "Fire lash that burns enemies on contact"
+        },
+        {
+          "name": "Vine Burn",
+          "element": "leaf",
+          "damage": 12,
+          "range": 4,
+          "animation": "vine_strike",
+          "description": "Vine attack with burning effect"
+        },
+        {
+          "name": "Ember-Vine Fusion",
+          "element": "combined",
+          "damage": 15,
+          "range": 3,
+          "animation": "aoe_fire",
+          "description": "Hybrid attack combining vine reach with fire damage"
+        }
+      ]
+    },
+    {
+      "id": "10ad412a",
+      "name": "Scorched Root",
+      "element": "fire",
+      "secondary": "leaf",
+      "hp": 41,
+      "speed": 9,
+      "move": 2,
+      "asset": "2.jpg",
+      "attacks": [
+        {
+          "name": "Root Burn",
+          "element": "fire",
+          "damage": 15,
+          "range": 3,
+          "animation": "projectile_fire",
+          "description": "Burning root attack"
+        },
+        {
+          "name": "Magma Strike",
+          "element": "fire",
+          "damage": 20,
+          "range": 2,
+          "animation": "aoe_fire",
+          "description": "Powerful close-range magma attack"
+        },
+        {
+          "name": "Scorched Fusion",
+          "element": "combined",
+          "damage": 18,
+          "range": 3,
+          "animation": "aoe_fire",
+          "description": "Combined fire and leaf devastation"
+        }
+      ]
+    },
+    {
+      "id": "cae85dff",
+      "name": "Flame Embrace",
+      "element": "fire",
+      "secondary": "leaf",
+      "hp": 43,
+      "speed": 8,
+      "move": 3,
+      "asset": "3.jpg",
+      "attacks": [
+        {
+          "name": "Flame Dash",
+          "element": "fire",
+          "damage": 24,
+          "range": 3,
+          "animation": "dash_fire",
+          "description": "Fire dashes dealing 12 passing damage, 24 direct damage at end. -20% incoming damage during dash"
+        },
+        {
+          "name": "Nature's Embrace",
+          "element": "leaf",
+          "damage": 0,
+          "range": 4,
+          "animation": "heal_aura",
+          "description": "Plus-shaped healing aura. Allies gain +20 HP instant, +5 HP/turn regen. Enemies take 10 HP/turn and are slowed"
+        },
+        {
+          "name": "Flame-Embrace Fusion",
+          "element": "combined",
+          "damage": 20,
+          "range": 4,
+          "animation": "aoe_fire",
+          "description": "Hybrid: Dash damage + plus-shaped field that heals allies and slows/damages enemies"
+        }
+      ]
+    },
+    {
+      "id": "baffdac6",
+      "name": "Boiling Response",
+      "element": "fire",
+      "secondary": "water",
+      "hp": 49,
+      "speed": 7,
+      "move": 3,
+      "asset": "4.jpg",
+      "attacks": [
+        {
+          "name": "Burning Trail",
+          "element": "fire",
+          "damage": 12,
+          "range": 5,
+          "animation": "trail_fire",
+          "description": "Leaves flaming tiles for 2 turns. Enemies take 10 burn damage. Attacks from behind deal -15% damage"
+        },
+        {
+          "name": "Boiling Response",
+          "element": "water",
+          "damage": 17,
+          "range": 3,
+          "animation": "steam_burst",
+          "description": "Reactive: Fire entering zone takes 15 steam burn, loses 1 movement, cannot use abilities next turn"
+        },
+        {
+          "name": "Burning-Response Fusion",
+          "element": "combined",
+          "damage": 17,
+          "range": 4,
+          "animation": "steam_trail",
+          "description": "Hybrid: Flame trail that triggers steam burn on contact. Movement loss + ability block + burn damage"
+        }
+      ]
+    },
+    {
+      "id": "8c5de00f",
+      "name": "Steam Surge",
+      "element": "fire",
+      "secondary": "water",
+      "hp": 57,
+      "speed": 6,
+      "move": 2,
+      "asset": "5.jpg",
+      "attacks": [
+        {
+          "name": "Steam Blast",
+          "element": "water",
+          "damage": 13,
+          "range": 3,
+          "animation": "steam_burst",
+          "description": "Powerful steam explosion"
+        },
+        {
+          "name": "Surge Strike",
+          "element": "water",
+          "damage": 16,
+          "range": 3,
+          "animation": "burst_water",
+          "description": "Surging water strike"
+        },
+        {
+          "name": "Steam-Surge Fusion",
+          "element": "combined",
+          "damage": 18,
+          "range": 3,
+          "animation": "steam_burst",
+          "description": "Hybrid steam and surge attack"
+        }
+      ]
+    },
+    {
+      "id": "ad387be8",
+      "name": "Flare Counter",
+      "element": "fire",
+      "secondary": "wind",
+      "hp": 34,
+      "speed": 11,
+      "move": 4,
+      "asset": "6.jpeg",
+      "attacks": [
+        {
+          "name": "Flare Counter",
+          "element": "fire",
+          "damage": 12,
+          "range": 2,
+          "animation": "counter_fire",
+          "description": "Reactive: If attacked, counters with 10 reflect damage. Gains +1 tile movement next turn"
+        },
+        {
+          "name": "Pressure Cut",
+          "element": "wind",
+          "damage": 12,
+          "range": 2,
+          "animation": "slash_wind",
+          "description": "Adjacent attack: 10 pressure damage, pushes enemy 1 tile, grants +5 HP shield"
+        },
+        {
+          "name": "Flare-Cut Fusion",
+          "element": "combined",
+          "damage": 14,
+          "range": 2,
+          "animation": "slash_fire",
+          "description": "Hybrid: Melee counter that pushes attacker 1 tile and grants +1 movement"
+        }
+      ]
+    },
+    {
+      "id": "514ebce8",
+      "name": "Burning Push",
+      "element": "water",
+      "secondary": "fire",
+      "hp": 46,
+      "speed": 9,
+      "move": 2,
+      "asset": "7.jpeg",
+      "attacks": [
+        {
+          "name": "Burning Trail",
+          "element": "fire",
+          "damage": 12,
+          "range": 5,
+          "animation": "trail_fire",
+          "description": "Leaves flaming tiles for 2 turns. Enemies take 10 burn damage"
+        },
+        {
+          "name": "Aqua Push",
+          "element": "water",
+          "damage": 9,
+          "range": 3,
+          "animation": "push_water",
+          "description": "3x3 push wave. Pushes enemies 1 tile, deals 8 HP damage, slows enemies"
+        },
+        {
+          "name": "Burning-Push Fusion",
+          "element": "combined",
+          "damage": 12,
+          "range": 4,
+          "animation": "steam_push",
+          "description": "Hybrid: Push wave displaces enemies into flame trail for immediate burn damage"
+        }
+      ]
+    },
+    {
+      "id": "396c06d9",
+      "name": "Aqua Trail",
+      "element": "water",
+      "secondary": "fire",
+      "hp": 50,
+      "speed": 8,
+      "move": 3,
+      "asset": "8.jpeg",
+      "attacks": [
+        {
+          "name": "Steam Trail",
+          "element": "water",
+          "damage": 12,
+          "range": 5,
+          "animation": "steam_trail",
+          "description": "Steam trail attack"
+        },
+        {
+          "name": "Heavy Splash",
+          "element": "water",
+          "damage": 15,
+          "range": 2,
+          "animation": "burst_water",
+          "description": "Heavy water splash attack"
+        },
+        {
+          "name": "Aqua-Trail Fusion",
+          "element": "combined",
+          "damage": 16,
+          "range": 4,
+          "animation": "steam_trail",
+          "description": "Hybrid steam and splash attack"
+        }
+      ]
+    },
+    {
+      "id": "2f041963",
+      "name": "Overgrowth Aura",
+      "element": "water",
+      "secondary": "leaf",
+      "hp": 51,
+      "speed": 7,
+      "move": 2,
+      "asset": "9.jpeg",
+      "attacks": [
+        {
+          "name": "Boiling Response",
+          "element": "water",
+          "damage": 17,
+          "range": 3,
+          "animation": "steam_burst",
+          "description": "Reactive: Fire entering zone takes 15 steam burn, loses 1 movement"
+        },
+        {
+          "name": "Overgrowth Aura",
+          "element": "leaf",
+          "damage": 7,
+          "range": 3,
+          "animation": "aura_grow",
+          "description": "Aura expands +1 tile/turn (up to 3). Enemies take 6 damage/turn, slowed -1 speed. Leaf gains +5 HP/turn"
+        },
+        {
+          "name": "Boiling-Aura Fusion",
+          "element": "combined",
+          "damage": 16,
+          "range": 3,
+          "animation": "steam_aura",
+          "description": "Hybrid: Expanding zone traps enemies with movement loss and ability block"
+        }
+      ]
+    },
+    {
+      "id": "fc1c56d2",
+      "name": "Water Splash",
+      "element": "water",
+      "secondary": "wind",
+      "hp": 53,
+      "speed": 9,
+      "move": 4,
+      "asset": "10.jpeg",
+      "attacks": [
+        {
+          "name": "Water Splash",
+          "element": "water",
+          "damage": 14,
+          "range": 2,
+          "animation": "splash_360",
+          "description": "Movement-based: Damages enemies in adjacent 8 tiles. Enemies are slowed next turn"
+        },
+        {
+          "name": "Whirlwind Zone",
+          "element": "wind",
+          "damage": 9,
+          "range": 3,
+          "animation": "whirlwind",
+          "description": "Whirlwind in surrounding 8 tiles. Enemies pushed 1 tile, gains +1 speed boost"
+        },
+        {
+          "name": "Water-Zone Fusion",
+          "element": "combined",
+          "damage": 14,
+          "range": 3,
+          "animation": "splash_whirl",
+          "description": "Hybrid: AoE that slows enemies and pushes them away"
+        }
+      ]
+    },
+    {
+      "id": "1cf44e8f",
+      "name": "Nature's Wave",
+      "element": "leaf",
+      "secondary": "water",
+      "hp": 56,
+      "speed": 8,
+      "move": 2,
+      "asset": "11.jpeg",
+      "attacks": [
+        {
+          "name": "Root Anchor",
+          "element": "leaf",
+          "damage": 10,
+          "range": 2,
+          "animation": "vine_root",
+          "description": "Root anchor attack"
+        },
+        {
+          "name": "Tower Slam",
+          "element": "leaf",
+          "damage": 16,
+          "range": 2,
+          "animation": "vine_slam",
+          "description": "Powerful tower slam"
+        },
+        {
+          "name": "Nature-Wave Fusion",
+          "element": "combined",
+          "damage": 14,
+          "range": 3,
+          "animation": "wave_leaf",
+          "description": "Hybrid wave and nature attack"
+        }
+      ]
+    },
+    {
+      "id": "b3e36830",
+      "name": "Nature's Zone",
+      "element": "leaf",
+      "secondary": "wind",
+      "hp": 45,
+      "speed": 10,
+      "move": 5,
+      "asset": "12.jpeg",
+      "attacks": [
+        {
+          "name": "Nature's Embrace",
+          "element": "leaf",
+          "damage": 0,
+          "range": 4,
+          "animation": "heal_aura",
+          "description": "Plus-shaped healing aura. Allies gain +20 HP instant, +5 HP/turn regen. Enemies slowed -1 tile"
+        },
+        {
+          "name": "Whirlwind Zone",
+          "element": "wind",
+          "damage": 9,
+          "range": 3,
+          "animation": "whirlwind",
+          "description": "Whirlwind in surrounding 8 tiles. Enemies take 8 instant damage, pushed 1 tile. Gains +1 speed"
+        },
+        {
+          "name": "Nature's-Zone Fusion",
+          "element": "combined",
+          "damage": 12,
+          "range": 4,
+          "animation": "heal_whirl",
+          "description": "Hybrid: AoE zone heals/regens allies while pushing enemies 1 tile"
+        }
+      ]
+    },
+    {
+      "id": "1a6e45d6",
+      "name": "Vine Strike",
+      "element": "leaf",
+      "secondary": "wind",
+      "hp": 46,
+      "speed": 8,
+      "move": 3,
+      "asset": "13.jpg",
+      "attacks": [
+        {
+          "name": "Sharp Vine",
+          "element": "leaf",
+          "damage": 13,
+          "range": 3,
+          "animation": "vine_strike",
+          "description": "Sharp vine attack"
+        },
+        {
+          "name": "Plant Arm",
+          "element": "leaf",
+          "damage": 15,
+          "range": 2,
+          "animation": "vine_slam",
+          "description": "Plant arm strike"
+        },
+        {
+          "name": "Vine-Wind Fusion",
+          "element": "combined",
+          "damage": 16,
+          "range": 3,
+          "animation": "vine_whirl",
+          "description": "Hybrid vine and wind attack"
+        }
+      ]
+    },
+    {
+      "id": "c807020e",
+      "name": "Backstab Dash",
+      "element": "wind",
+      "secondary": "fire",
+      "hp": 41,
+      "speed": 12,
+      "move": 5,
+      "asset": "14.jpeg",
+      "attacks": [
+        {
+          "name": "Backstab Gust",
+          "element": "wind",
+          "damage": 18,
+          "range": 2,
+          "animation": "backstab",
+          "description": "If passing behind enemy, deals 18 backstab damage + stun 1 turn. Ghost mode while moving"
+        },
+        {
+          "name": "Flame Dash",
+          "element": "fire",
+          "damage": 46,
+          "range": 3,
+          "animation": "dash_fire",
+          "description": "Fire dash: Enemies on path take 20 passing damage, final target takes 40 direct. -20% incoming during dash"
+        },
+        {
+          "name": "Backstab-Dash Fusion",
+          "element": "combined",
+          "damage": 25,
+          "range": 3,
+          "animation": "dash_backstab",
+          "description": "Hybrid: High-aggression dash. If completed behind enemy, stuns for 1 turn"
+        }
+      ]
+    },
+    {
+      "id": "4d278c7b",
+      "name": "Whirlwind Trail",
+      "element": "wind",
+      "secondary": "fire",
+      "hp": 41,
+      "speed": 13,
+      "move": 4,
+      "asset": "15.jpeg",
+      "attacks": [
+        {
+          "name": "Whirlwind Zone",
+          "element": "wind",
+          "damage": 9,
+          "range": 3,
+          "animation": "whirlwind",
+          "description": "Whirlwind in surrounding 8 tiles. Enemies pushed 1 tile, gains +1 speed boost"
+        },
+        {
+          "name": "Burning Trail",
+          "element": "fire",
+          "damage": 12,
+          "range": 5,
+          "animation": "trail_fire",
+          "description": "Leaves flaming tiles for 2 turns. Enemies take 10 burn damage"
+        },
+        {
+          "name": "Whirlwind-Trail Fusion",
+          "element": "combined",
+          "damage": 12,
+          "range": 4,
+          "animation": "whirl_fire",
+          "description": "Hybrid: Whirlwind pushes enemies, movement leaves burning trail"
+        }
+      ]
+    },
+    {
+      "id": "bbdd39b4",
+      "name": "Whirlwind Splash",
+      "element": "wind",
+      "secondary": "water",
+      "hp": 45,
+      "speed": 11,
+      "move": 4,
+      "asset": "16.jpeg",
+      "attacks": [
+        {
+          "name": "Whirlwind Zone",
+          "element": "wind",
+          "damage": 9,
+          "range": 3,
+          "animation": "whirlwind",
+          "description": "Whirlwind in surrounding 8 tiles. Enemies pushed 1 tile, gains +1 speed boost"
+        },
+        {
+          "name": "Water Splash",
+          "element": "water",
+          "damage": 14,
+          "range": 2,
+          "animation": "splash_360",
+          "description": "Movement-based: Damages enemies in adjacent 8 tiles. Enemies slowed next turn"
+        },
+        {
+          "name": "Whirlwind-Splash Fusion",
+          "element": "combined",
+          "damage": 14,
+          "range": 3,
+          "animation": "splash_whirl",
+          "description": "Hybrid: AoE pushes enemies away and applies slow debuff"
+        }
+      ]
+    },
+    {
+      "id": "8a073cc9",
+      "name": "Backstab Gust",
+      "element": "wind",
+      "secondary": "leaf",
+      "hp": 48,
+      "speed": 9,
+      "move": 5,
+      "asset": "17.jpeg",
+      "attacks": [
+        {
+          "name": "Backstab Gust",
+          "element": "wind",
+          "damage": 18,
+          "range": 2,
+          "animation": "backstab",
+          "description": "If passing behind enemy, deals 18 backstab damage + stun 1 turn. Ghost mode while moving"
+        },
+        {
+          "name": "Vine Strike",
+          "element": "leaf",
+          "damage": 17,
+          "range": 2,
+          "animation": "vine_strike",
+          "description": "15 root-punch damage to adjacent enemy. Pushes enemy 1 tile. Can move ally"
+        },
+        {
+          "name": "Backstab-Strike Fusion",
+          "element": "combined",
+          "damage": 23,
+          "range": 2,
+          "animation": "backstab_vine",
+          "description": "Hybrid: Assassin melee from behind stuns and pushes 1 tile"
+        }
+      ]
+    },
+    {
+      "id": "Null-Aura",
+      "name": "Aura Booster",
+      "element": "null",
+      "secondary": "null",
+      "hp": 60,
+      "speed": 5,
+      "move": 3,
+      "asset": "18.jpg",
+      "attacks": [
+        {
+          "name": "Glitch Aura",
+          "element": "null",
+          "damage": 11,
+          "range": 2,
+          "animation": "glitch_pulse",
+          "description": "2x2 aura: Allies gain +15% ATK, +1 movement, +5 healing. Enemies take 6 debuff damage, -1 movement"
+        },
+        {
+          "name": "Boost Pulse",
+          "element": "null",
+          "damage": 13,
+          "range": 2,
+          "animation": "beam_null",
+          "description": "Pulsing boost attack"
+        },
+        {
+          "name": "Aura Boost Fusion",
+          "element": "null",
+          "damage": 12,
+          "range": 3,
+          "animation": "glitch_aura",
+          "description": "Combined aura and boost effect"
+        }
+      ]
+    },
+    {
+      "id": "Null-Logic",
+      "name": "Logic Trap",
+      "element": "null",
+      "secondary": "null",
+      "hp": 55,
+      "speed": 3,
+      "move": 2,
+      "asset": "19.jpeg",
+      "attacks": [
+        {
+          "name": "Digital Shock",
+          "element": "null",
+          "damage": 12,
+          "range": 3,
+          "animation": "beam_null",
+          "description": "Digital shock attack"
+        },
+        {
+          "name": "Logic Break",
+          "element": "null",
+          "damage": 15,
+          "range": 2,
+          "animation": "trap_null",
+          "description": "Tile becomes Trap Node. Enemy stepping takes 15 trap damage, stunned 1 turn, all buffs removed"
+        },
+        {
+          "name": "Logic Trap Fusion",
+          "element": "null",
+          "damage": 15,
+          "range": 2,
+          "animation": "trap_shock",
+          "description": "Combined trap and shock effect"
+        }
+      ]
+    },
+    {
+      "id": "Null-Rewrite",
+      "name": "Rewrite Field",
+      "element": "null",
+      "secondary": "null",
+      "hp": 70,
+      "speed": 6,
+      "move": 2,
+      "asset": "20.jpeg",
+      "attacks": [
+        {
+          "name": "Scramble Distort",
+          "element": "null",
+          "damage": 16,
+          "range": 2,
+          "animation": "glitch_wave",
+          "description": "3-tile radius wave: Allies get buffs (movement, shield). Enemies take 10 scramble damage, random displacement"
+        },
+        {
+          "name": "Code Eruption",
+          "element": "null",
+          "damage": 18,
+          "range": 2,
+          "animation": "beam_null",
+          "description": "Powerful code eruption attack"
+        },
+        {
+          "name": "Rewrite Fusion",
+          "element": "null",
+          "damage": 18,
+          "range": 3,
+          "animation": "glitch_field",
+          "description": "Combined rewrite field effect"
+        }
+      ]
+    }
+  ],
+  "animation_types": {
+    "projectile_fire": {
+      "type": "projectile",
+      "color": [
+        255,
+        100,
+        30
+      ],
+      "trail_color": [
+        255,
+        180,
+        50
+      ],
+      "speed": 0.08,
+      "size": 12,
+      "trail_particles": 3
+    },
+    "projectile_water": {
+      "type": "projectile",
+      "color": [
+        50,
+        150,
+        255
+      ],
+      "trail_color": [
+        100,
+        200,
+        255
+      ],
+      "speed": 0.06,
+      "size": 10,
+      "trail_particles": 2
+    },
+    "slash_wind": {
+      "type": "slash",
+      "color": [
+        200,
+        220,
+        255
+      ],
+      "arc_color": [
+        255,
+        255,
+        255
+      ],
+      "speed": 0.12,
+      "arc_angle": 120
+    },
+    "slash_fire": {
+      "type": "slash",
+      "color": [
+        255,
+        100,
+        30
+      ],
+      "arc_color": [
+        255,
+        200,
+        50
+      ],
+      "speed": 0.10,
+      "arc_angle": 90
+    },
+    "beam_null": {
+      "type": "beam",
+      "color": [
+        180,
+        100,
+        220
+      ],
+      "glitch_color": [
+        100,
+        255,
+        200
+      ],
+      "speed": 0.05,
+      "width": 8,
+      "glitch": true
+    },
+    "aoe_fire": {
+      "type": "aoe",
+      "color": [
+        255,
+        80,
+        30
+      ],
+      "ring_color": [
+        255,
+        200,
+        50
+      ],
+      "radius": 60,
+      "expand_speed": 0.08
+    },
+    "vine_strike": {
+      "type": "vine",
+      "color": [
+        80,
+        200,
+        80
+      ],
+      "accent_color": [
+        50,
+        150,
+        50
+      ],
+      "segments": 5,
+      "wave_speed": 0.1
+    },
+    "vine_slam": {
+      "type": "vine",
+      "color": [
+        60,
+        180,
+        60
+      ],
+      "accent_color": [
+        40,
+        140,
+        40
+      ],
+      "segments": 3,
+      "wave_speed": 0.15
+    },
+    "vine_root": {
+      "type": "vine",
+      "color": [
+        100,
+        80,
+        50
+      ],
+      "accent_color": [
+        60,
+        200,
+        60
+      ],
+      "segments": 4,
+      "wave_speed": 0.08
+    },
+    "heal_aura": {
+      "type": "heal",
+      "color": [
+        100,
+        255,
+        100
+      ],
+      "particle_color": [
+        200,
+        255,
+        200
+      ],
+      "radius": 50,
+      "particle_count": 20
+    },
+    "burst_water": {
+      "type": "burst",
+      "color": [
+        50,
+        150,
+        255
+      ],
+      "splash_color": [
+        150,
+        220,
+        255
+      ],
+      "radius": 45,
+      "droplet_count": 15
+    },
+    "trail_fire": {
+      "type": "trail",
+      "color": [
+        255,
+        100,
+        30
+      ],
+      "flame_color": [
+        255,
+        200,
+        50
+      ],
+      "tile_duration": 120,
+      "flame_height": 20
+    },
+    "steam_burst": {
+      "type": "steam",
+      "color": [
+        200,
+        200,
+        220
+      ],
+      "steam_color": [
+        255,
+        255,
+        255
+      ],
+      "radius": 40,
+      "particle_count": 25
+    },
+    "steam_trail": {
+      "type": "steam",
+      "color": [
+        180,
+        180,
+        200
+      ],
+      "steam_color": [
+        220,
+        220,
+        230
+      ],
+      "radius": 30,
+      "particle_count": 15
+    },
+    "steam_push": {
+      "type": "steam",
+      "color": [
+        200,
+        200,
+        220
+      ],
+      "steam_color": [
+        255,
+        255,
+        255
+      ],
+      "radius": 50,
+      "particle_count": 30
+    },
+    "steam_aura": {
+      "type": "steam",
+      "color": [
+        180,
+        200,
+        180
+      ],
+      "steam_color": [
+        200,
+        255,
+        200
+      ],
+      "radius": 45,
+      "particle_count": 20
+    },
+    "push_water": {
+      "type": "wave",
+      "color": [
+        50,
+        150,
+        255
+      ],
+      "wave_color": [
+        150,
+        220,
+        255
+      ],
+      "width": 60,
+      "speed": 0.1
+    },
+    "splash_360": {
+      "type": "splash",
+      "color": [
+        50,
+        150,
+        255
+      ],
+      "droplet_color": [
+        150,
+        220,
+        255
+      ],
+      "radius": 50,
+      "droplet_count": 12
+    },
+    "splash_whirl": {
+      "type": "splash",
+      "color": [
+        100,
+        180,
+        255
+      ],
+      "droplet_color": [
+        200,
+        230,
+        255
+      ],
+      "radius": 55,
+      "droplet_count": 16
+    },
+    "whirlwind": {
+      "type": "whirl",
+      "color": [
+        200,
+        220,
+        255
+      ],
+      "spiral_color": [
+        255,
+        255,
+        255
+      ],
+      "radius": 50,
+      "rotation_speed": 0.15
+    },
+    "whirl_fire": {
+      "type": "whirl",
+      "color": [
+        255,
+        180,
+        100
+      ],
+      "spiral_color": [
+        255,
+        100,
+        30
+      ],
+      "radius": 55,
+      "rotation_speed": 0.12
+    },
+    "heal_whirl": {
+      "type": "heal_whirl",
+      "color": [
+        100,
+        255,
+        100
+      ],
+      "spiral_color": [
+        200,
+        255,
+        200
+      ],
+      "radius": 50,
+      "rotation_speed": 0.1
+    },
+    "vine_whirl": {
+      "type": "vine_whirl",
+      "color": [
+        80,
+        200,
+        80
+      ],
+      "spiral_color": [
+        200,
+        255,
+        200
+      ],
+      "radius": 45,
+      "rotation_speed": 0.1
+    },
+    "wave_leaf": {
+      "type": "wave",
+      "color": [
+        80,
+        200,
+        80
+      ],
+      "wave_color": [
+        100,
+        255,
+        150
+      ],
+      "width": 50,
+      "speed": 0.08
+    },
+    "backstab": {
+      "type": "strike",
+      "color": [
+        200,
+        200,
+        220
+      ],
+      "flash_color": [
+        255,
+        255,
+        255
+      ],
+      "speed": 0.15,
+      "strike_size": 15
+    },
+    "backstab_vine": {
+      "type": "strike",
+      "color": [
+        100,
+        200,
+        100
+      ],
+      "flash_color": [
+        200,
+        255,
+        200
+      ],
+      "speed": 0.12,
+      "strike_size": 18
+    },
+    "dash_fire": {
+      "type": "dash",
+      "color": [
+        255,
+        100,
+        30
+      ],
+      "trail_color": [
+        255,
+        200,
+        50
+      ],
+      "speed": 0.1,
+      "trail_length": 8
+    },
+    "dash_backstab": {
+      "type": "dash",
+      "color": [
+        255,
+        150,
+        100
+      ],
+      "trail_color": [
+        255,
+        220,
+        180
+      ],
+      "speed": 0.12,
+      "trail_length": 6
+    },
+    "counter_fire": {
+      "type": "counter",
+      "color": [
+        255,
+        100,
+        30
+      ],
+      "flash_color": [
+        255,
+        255,
+        200
+      ],
+      "speed": 0.08
+    },
+    "aura_grow": {
+      "type": "aura",
+      "color": [
+        80,
+        200,
+        80
+      ],
+      "ring_color": [
+        150,
+        255,
+        150
+      ],
+      "radius": 40,
+      "expand_speed": 0.05
+    },
+    "glitch_pulse": {
+      "type": "glitch",
+      "color": [
+        180,
+        100,
+        220
+      ],
+      "glitch_color": [
+        100,
+        255,
+        200
+      ],
+      "pulse_size": 40,
+      "glitch_intensity": 0.3
+    },
+    "glitch_wave": {
+      "type": "glitch",
+      "color": [
+        150,
+        80,
+        200
+      ],
+      "glitch_color": [
+        80,
+        255,
+        180
+      ],
+      "pulse_size": 60,
+      "glitch_intensity": 0.5
+    },
+    "glitch_aura": {
+      "type": "glitch",
+      "color": [
+        180,
+        120,
+        220
+      ],
+      "glitch_color": [
+        120,
+        255,
+        200
+      ],
+      "pulse_size": 50,
+      "glitch_intensity": 0.4
+    },
+    "glitch_field": {
+      "type": "glitch",
+      "color": [
+        200,
+        100,
+        255
+      ],
+      "glitch_color": [
+        50,
+        255,
+        150
+      ],
+      "pulse_size": 70,
+      "glitch_intensity": 0.6
+    },
+    "trap_null": {
+      "type": "trap",
+      "color": [
+        180,
+        100,
+        220
+      ],
+      "grid_color": [
+        100,
+        255,
+        200
+      ],
+      "trap_size": 50
+    },
+    "trap_shock": {
+      "type": "trap",
+      "color": [
+        200,
+        120,
+        255
+      ],
+      "grid_color": [
+        80,
+        255,
+        180
+      ],
+      "trap_size": 55
+    }
+  }
+}

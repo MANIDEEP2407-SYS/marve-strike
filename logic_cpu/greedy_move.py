@@ -1,4 +1,4 @@
-from grid import bfs_reachable
+from game_grid import bfs_reachable
 
 # greedy_move.py
 def greedy_nearest_move(e_pos, players, grid, move_range):

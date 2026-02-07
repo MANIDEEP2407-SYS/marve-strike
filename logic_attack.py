@@ -1,6 +1,6 @@
 import random
 from config import GRID_COLS, GRID_ROWS, FPS
-from grid import cell_center
+from game_grid import cell_center
 from effects import flame_tiles, regen_effects, burn_effects
 from colors import E_FIRE, E_LEAF
 from animations import anim_mgr
@@ -156,7 +156,7 @@ def initiate_player_attack(player_idx, attack_idx, enemy_idx, grid):
     attacker = grid.tiles[pc_pos[0]][pc_pos[1]].card
     atk = attacker.attacks[attack_idx]
 
-    from grid import bfs_reachable
+    from game_grid import bfs_reachable
     reachable = bfs_reachable(pc_pos, atk.attack_range, grid)
 
     if ec_pos not in reachable:
@@ -167,6 +167,12 @@ def initiate_player_attack(player_idx, attack_idx, enemy_idx, grid):
         )
         return False
 
+    # Get animation type from attack
+    anim_type = getattr(atk, 'animation', None)
+    if anim_type is None:
+        # Fallback based on element
+        anim_type = f"projectile_{atk.element}" if atk.element != "null" else "beam_null"
+
     anim_mgr.trigger_attack_anim(
         cell_center(*pc_pos),
         cell_center(*ec_pos),
@@ -175,7 +181,8 @@ def initiate_player_attack(player_idx, attack_idx, enemy_idx, grid):
             pc_pos[0], pc_pos[1],
             ec_pos[0], ec_pos[1],
             atk, grid
-        )
+        ),
+        anim_type=anim_type
     )
 
     return True
