@@ -22,7 +22,7 @@ def greedy_best_target(e_pos, players, grid):
         dist_factor = 1 / max(dist, 1)
 
         # 3️⃣ Prefer high-damage threats
-        threat = max(a.dmg for a in card.attacks)
+        threat = max((a.dmg for a in card.attacks), default=0)
 
         score = (
             hp_factor * 10 +

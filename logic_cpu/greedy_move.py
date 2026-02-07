@@ -1,25 +1,19 @@
 from game_grid import bfs_reachable
 
-# greedy_move.py
+# greedy_move.py  — Greedy Algorithm for position selection
 def greedy_nearest_move(e_pos, players, grid, move_range):
-    possible_moves = []
+    """
+    Greedy nearest-move: BFS to find reachable tiles,
+    then greedily pick the tile closest to ideal combat range.
+    """
+    # BFS once to get all reachable cells within move_range
+    reachable = bfs_reachable(e_pos, move_range, grid)
 
-    for c in range(
-        max(0, e_pos[0] - move_range),
-        min(grid.cols, e_pos[0] + move_range + 1)
-    ):
-        for r in range(
-            max(0, e_pos[1] - move_range),
-            min(grid.rows, e_pos[1] + move_range + 1)
-        ):
-            # Manhattan distance constraint
-            reachable = bfs_reachable(e_pos, move_range, grid)
-            
-            for (c, r) in reachable:
-                if grid.tiles[c][r].card is None:
-                    possible_moves.append((c, r))
-
-
+    # Filter to empty tiles only
+    possible_moves = [
+        (c, r) for (c, r) in reachable
+        if grid.tiles[c][r].card is None or (c, r) == e_pos
+    ]
 
     if not possible_moves:
         return e_pos

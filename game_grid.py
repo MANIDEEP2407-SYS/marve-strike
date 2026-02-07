@@ -35,9 +35,10 @@ from collections import deque
 
 def bfs_reachable(start, max_depth, grid):
     """
-    Graph traversal (BFS) to find reachable nodes within depth
+    Graph traversal (BFS) to find all reachable nodes within max_depth
+    Manhattan steps from start. Uses visited set to avoid revisiting.
     """
-    visited = set()
+    visited = {start}
     queue = deque([(start, 0)])
     reachable = set()
 

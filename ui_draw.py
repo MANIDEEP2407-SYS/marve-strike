@@ -1,361 +1,632 @@
 import pygame
 import random
+import math
 
 from config import *
 from colors import *
-from fonts import FONT_BIG, FONT_MAIN
+from fonts import *
 from game_grid import cell_center
 from animations import anim_mgr
 from effects import flame_tiles
 
+# ═══════════════════════════════════════════════════════
+# GLOBAL CACHES
+# ═══════════════════════════════════════════════════════
+_bg_surface = None
+_frame_count = 0
 
-# -------------------------------------------------
-# CONFETTI SYSTEM
-# -------------------------------------------------
+# ═══════════════════════════════════════════════════════
+# AMBIENT PARTICLE SYSTEM (floating dust motes)
+# ═══════════════════════════════════════════════════════
+ambient_particles = []
+for _ in range(50):
+    ambient_particles.append({
+        "x": random.uniform(0, WIDTH),
+        "y": random.uniform(0, GRID_ROWS * TILE_SIZE),
+        "size": random.uniform(1.0, 2.5),
+        "alpha": random.randint(15, 45),
+        "speed_x": random.uniform(-0.12, 0.12),
+        "speed_y": random.uniform(-0.08, 0.08),
+        "phase": random.uniform(0, math.pi * 2),
+    })
+
+
+def _draw_ambient(screen, frame):
+    grid_h = GRID_ROWS * TILE_SIZE
+    for p in ambient_particles:
+        p["x"] += p["speed_x"] + math.sin(frame * 0.008 + p["phase"]) * 0.12
+        p["y"] += p["speed_y"] + math.cos(frame * 0.006 + p["phase"]) * 0.08
+        if p["x"] < 0: p["x"] = WIDTH
+        if p["x"] > WIDTH: p["x"] = 0
+        if p["y"] < 0: p["y"] = grid_h
+        if p["y"] > grid_h: p["y"] = 0
+
+        pulse = 0.6 + 0.4 * math.sin(frame * 0.02 + p["phase"])
+        a = int(p["alpha"] * pulse)
+        sz = max(1, int(p["size"] * pulse))
+        s = pygame.Surface((sz * 2, sz * 2), pygame.SRCALPHA)
+        pygame.draw.circle(s, (*C_ACCENT_GLOW, a), (sz, sz), sz)
+        screen.blit(s, (int(p["x"]) - sz, int(p["y"]) - sz))
+
+
+# ═══════════════════════════════════════════════════════
+# CONFETTI SYSTEM (200 particles — Victory)
+# ═══════════════════════════════════════════════════════
 confetti_particles = []
 
 def spawn_confetti():
     confetti_particles.clear()
-    for _ in range(120):
+    for _ in range(200):
         confetti_particles.append({
             "x": random.randint(0, WIDTH),
             "y": random.randint(-HEIGHT, 0),
             "vy": random.uniform(1.5, 4.0),
+            "vx": random.uniform(-0.5, 0.5),
             "color": random.choice(C_CONFETTI),
-            "size": random.randint(4, 7)
+            "size": random.randint(3, 7),
+            "rot": random.uniform(0, 360),
+            "rot_speed": random.uniform(-4, 4),
         })
 
 
 def update_and_draw_confetti(screen):
     for p in confetti_particles:
         p["y"] += p["vy"]
+        p["x"] += p["vx"]
+        p["rot"] += p["rot_speed"]
         if p["y"] > HEIGHT:
-            p["y"] = random.randint(-50, 0)
+            p["y"] = random.randint(-60, -10)
             p["x"] = random.randint(0, WIDTH)
-
-        pygame.draw.circle(
-            screen,
-            p["color"],
-            (int(p["x"]), int(p["y"])),
-            p["size"]
-        )
+        s = pygame.Surface((p["size"], p["size"]), pygame.SRCALPHA)
+        s.fill((*p["color"], 210))
+        rotated = pygame.transform.rotate(s, p["rot"])
+        screen.blit(rotated, (int(p["x"]), int(p["y"])))
 
 
-# -------------------------------------------------
-# HELPER: CARD SHAPE
-# -------------------------------------------------
-def draw_card_shape(surf, x, y, size, color, is_circle=False):
-    rect = pygame.Rect(
-        x - size // 2,
-        y - size // 2,
-        size,
-        size
-    )
-
-    if is_circle:
-        pygame.draw.circle(
-            surf,
-            color,
-            (x, y),
-            size // 2
-        )
-    else:
-        pygame.draw.rect(
-            surf,
-            color,
-            rect,
-            border_radius=12
-        )
+# ═══════════════════════════════════════════════════════
+# HELPERS
+# ═══════════════════════════════════════════════════════
+ELEM_COLORS = {
+    "fire": E_FIRE, "water": E_WATER, "leaf": E_LEAF,
+    "air": E_AIR, "wind": E_AIR, "null": E_NULL,
+}
+ELEM_GLOW = {
+    "fire": E_FIRE_GLOW, "water": E_WATER_GLOW, "leaf": E_LEAF_GLOW,
+    "air": E_AIR_GLOW, "wind": E_AIR_GLOW, "null": E_NULL_GLOW,
+}
 
 
-# -------------------------------------------------
-# MAIN UI DRAW FUNCTION
-# -------------------------------------------------
+def _draw_key_badge(surf, text, x, y, size=30):
+    """Keyboard key visual"""
+    rect = pygame.Rect(x, y, size, size)
+    pygame.draw.rect(surf, C_BG_TERTIARY, rect, border_radius=6)
+    pygame.draw.rect(surf, C_ACCENT_DARK, rect, 2, border_radius=6)
+    t = FONT_MEDIUM.render(text, True, C_TEXT)
+    surf.blit(t, (x + (size - t.get_width()) // 2, y + (size - t.get_height()) // 2))
+
+
+# ═══════════════════════════════════════════════════════
+# MAIN UI DRAW
+# ═══════════════════════════════════════════════════════
 def draw_ui(
     screen,
     grid,
     selected_pos,
     hovered_cell,
-    game_state="playing",
     placing_phase=False,
     selected_player_element="fire"
 ):
+    global _bg_surface, _frame_count
+    _frame_count += 1
+    grid_pixel_h = GRID_ROWS * TILE_SIZE
 
-    screen.fill(C_BG)
+    # ─── Background gradient (cached) ───
+    if _bg_surface is None or _bg_surface.get_size() != (WIDTH, HEIGHT):
+        _bg_surface = pygame.Surface((WIDTH, HEIGHT))
+        for y in range(HEIGHT):
+            t = y / HEIGHT
+            r = int(C_BG_GRADIENT_T[0] + (C_BG_GRADIENT_B[0] - C_BG_GRADIENT_T[0]) * t)
+            g = int(C_BG_GRADIENT_T[1] + (C_BG_GRADIENT_B[1] - C_BG_GRADIENT_T[1]) * t)
+            b = int(C_BG_GRADIENT_T[2] + (C_BG_GRADIENT_B[2] - C_BG_GRADIENT_T[2]) * t)
+            pygame.draw.line(_bg_surface, (r, g, b), (0, y), (WIDTH, y))
+    screen.blit(_bg_surface, (0, 0))
 
-    # =================================================
-    # GRID + TILE EFFECTS
-    # =================================================
+    _draw_ambient(screen, _frame_count)
+
+    # ═════════════════════════════════════
+    # GRID TILES
+    # ═════════════════════════════════════
     for c in range(GRID_COLS):
         for r in range(GRID_ROWS):
+            tx, ty = c * TILE_SIZE, r * TILE_SIZE
+            tile_rect = pygame.Rect(tx, ty, TILE_SIZE, TILE_SIZE)
 
-            rect = pygame.Rect(
-                c * TILE_SIZE,
-                r * TILE_SIZE,
-                TILE_SIZE,
-                TILE_SIZE
-            )
-            pygame.draw.rect(screen, C_GRID, rect, 1)
+            # Checkerboard
+            if (c + r) % 2 == 0:
+                ch = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                ch.fill((255, 255, 255, 4))
+                screen.blit(ch, (tx, ty))
 
-            # 🔥 Flame tiles
+            # Grid line
+            pygame.draw.rect(screen, C_ACCENT_DARK, tile_rect, 1)
+
+            # Flame tiles
             for ft in flame_tiles:
                 if ft[0] == c and ft[1] == r:
-                    alpha = int((ft[2] / (FPS * 3)) * 255)
+                    alpha = int((ft[2] / (FPS * 3)) * 200)
                     flame = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                    pygame.draw.rect(flame, (*E_FIRE, alpha // 3), (0, 0, TILE_SIZE, TILE_SIZE), border_radius=4)
+                    pad = TILE_SIZE // 6
+                    pygame.draw.rect(flame, (*E_FIRE_GLOW, alpha // 2),
+                                     (pad, pad, TILE_SIZE - pad * 2, TILE_SIZE - pad * 2), border_radius=4)
+                    for _ in range(2):
+                        fx = random.randint(pad, TILE_SIZE - pad)
+                        fy = random.randint(pad, TILE_SIZE - pad)
+                        pygame.draw.circle(flame, (*E_FIRE_GLOW, alpha), (fx, fy), random.randint(2, 4))
+                    screen.blit(flame, (tx, ty))
 
-                    pygame.draw.circle(
-                        flame,
-                        (*E_FIRE, alpha),
-                        (TILE_SIZE // 2, TILE_SIZE // 2),
-                        TILE_SIZE // 2
-                    )
-                    pygame.draw.circle(
-                        flame,
-                        (255, 200, 50, alpha // 2),
-                        (TILE_SIZE // 2, TILE_SIZE // 2),
-                        TILE_SIZE // 3
-                    )
-                    screen.blit(flame, (c * TILE_SIZE, r * TILE_SIZE))
+            # Hover
+            if (c, r) == hovered_cell and r < GRID_ROWS:
+                hov = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                hov.fill((*C_ACCENT_GLOW, 22))
+                pygame.draw.rect(hov, (*C_ACCENT_GLOW, 55), (0, 0, TILE_SIZE, TILE_SIZE), 2, border_radius=3)
+                screen.blit(hov, (tx, ty))
 
-            # Hover highlight
-            if (c, r) == hovered_cell:
-                s = pygame.Surface((TILE_SIZE, TILE_SIZE))
-                s.set_alpha(40)
-                s.fill(C_HIGHLIGHT)
-                screen.blit(s, (c * TILE_SIZE, r * TILE_SIZE))
-
-            # Move + attack range preview
+            # Selection ranges
             if selected_pos:
                 sc, sr = selected_pos
                 sel_card = grid.tiles[sc][sr].card
                 if sel_card and sel_card.owner == "player":
                     from game_grid import bfs_reachable
 
-                    # MOVE RANGE (graph-based)
-                    move_reachable = bfs_reachable((sc, sr), sel_card.move_range, grid)
-
-                    if (c, r) in move_reachable:
+                    move_reach = bfs_reachable((sc, sr), sel_card.move_range, grid)
+                    if (c, r) in move_reach:
+                        pulse = 18 + int(8 * math.sin(_frame_count * 0.06))
                         m = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                        m.fill((0, 200, 255, 25))
-                        screen.blit(m, (c * TILE_SIZE, r * TILE_SIZE))
+                        m.fill((*C_PLAYER, pulse))
+                        pygame.draw.rect(m, (*C_PLAYER_GLOW, 35), (0, 0, TILE_SIZE, TILE_SIZE), 1, border_radius=2)
+                        screen.blit(m, (tx, ty))
 
-                    # ATTACK RANGE (graph-based)
                     max_range = max(atk.attack_range for atk in sel_card.attacks)
-                    attack_reachable = bfs_reachable((sc, sr), max_range, grid)
-
-                    if (c, r) in attack_reachable:
+                    atk_reach = bfs_reachable((sc, sr), max_range, grid)
+                    if (c, r) in atk_reach and (c, r) not in move_reach:
                         a = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-                        a.fill((255, 255, 0, 18))
-                        screen.blit(a, (c * TILE_SIZE, r * TILE_SIZE))
+                        a.fill((*C_WARNING, 12))
+                        screen.blit(a, (tx, ty))
 
-
-
-    # =================================================
-    # DRAW CARDS
-    # =================================================
+    # ═════════════════════════════════════
+    # CARDS ON GRID
+    # ═════════════════════════════════════
     for c in range(grid.cols):
         for r in range(grid.rows):
-
             card = grid.tiles[c][r].card
             if not card:
                 continue
 
             cx, cy = cell_center(c, r)
-
-            # ------------------------------
-            # DISPLAY HP INIT + SMOOTHING
-            # ------------------------------
             if card.display_hp is None:
                 card.display_hp = card.hp
-
             card.display_hp = card.hp
 
-            # ------------------------------
-            # BASE COLOR
-            # ------------------------------
-            color = C_PLAYER if card.owner == "player" else C_ENEMY
+            elem_c = ELEM_COLORS.get(card.element, E_NULL)
+            elem_g = ELEM_GLOW.get(card.element, E_NULL_GLOW)
+            owner_c = C_PLAYER if card.owner == "player" else C_ENEMY
+            owner_g = C_PLAYER_GLOW if card.owner == "player" else C_ENEMY_GLOW
 
-            # ⚡ DAMAGE FLASH
+            body_c = owner_c
             if card.flash_timer > 0:
-                color = (255, 255, 255)
+                body_c = C_WHITE
                 card.flash_timer -= 1
-
-            # 💚 HEAL FLASH
             elif card.heal_flash_timer > 0:
-                color = (120, 255, 120)
+                body_c = C_SUCCESS
                 card.heal_flash_timer -= 1
 
+            # Selection glow
+            if selected_pos == (c, r):
+                gs = pygame.Surface((TILE_SIZE + 16, TILE_SIZE + 16), pygame.SRCALPHA)
+                pa = int(50 + 30 * math.sin(_frame_count * 0.08))
+                pygame.draw.circle(gs, (*C_GOLD, pa), (TILE_SIZE // 2 + 8, TILE_SIZE // 2 + 8), TILE_SIZE // 2 + 6)
+                screen.blit(gs, (cx - TILE_SIZE // 2 - 8, cy - TILE_SIZE // 2 - 8))
 
-            # ------------------------------
-            # CARD BODY
-            # ------------------------------
-            draw_card_shape(
-                screen,
-                cx,
-                cy,
-                TILE_SIZE - 10,
-                color,
-                is_circle=(card.owner == "enemy" or card.owner=="player")
-                
-            )
+            # Element ring (rotating accent dot)
+            ring_r = TILE_SIZE // 2 - 4
+            rs = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+            pygame.draw.circle(rs, (*elem_c, 90), (TILE_SIZE // 2, TILE_SIZE // 2), ring_r, 3)
+            angle = (_frame_count * 0.02) + (c * 1.3 + r * 0.7)
+            dx = TILE_SIZE // 2 + int(math.cos(angle) * ring_r)
+            dy = TILE_SIZE // 2 + int(math.sin(angle) * ring_r)
+            pygame.draw.circle(rs, (*elem_g, 200), (dx, dy), 4)
+            screen.blit(rs, (cx - TILE_SIZE // 2, cy - TILE_SIZE // 2))
 
-            # ------------------------------
-            # ⭐ RARITY BORDER
-            # ------------------------------
+            # Card body gradient circle
+            inner_r = TILE_SIZE // 2 - 10
+            bs = pygame.Surface((inner_r * 2, inner_r * 2), pygame.SRCALPHA)
+            for i in range(inner_r, 0, -1):
+                t = i / inner_r
+                cr = min(255, int(body_c[0] * t + 15))
+                cg = min(255, int(body_c[1] * t + 15))
+                cb = min(255, int(body_c[2] * t + 15))
+                pygame.draw.circle(bs, (cr, cg, cb, int(210 * t)), (inner_r, inner_r), i)
+            screen.blit(bs, (cx - inner_r, cy - inner_r))
+
+            # Rarity glow
             if card.rarity == "legendary":
-                pygame.draw.rect(
-                    screen,
-                    (255, 215, 0),
-                    pygame.Rect(
-                        cx - TILE_SIZE // 2,
-                        cy - TILE_SIZE // 2,
-                        TILE_SIZE,
-                        TILE_SIZE
-                    ),
-                    3
-                )
+                ls = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                pa = int(120 + 60 * math.sin(_frame_count * 0.06))
+                pygame.draw.circle(ls, (*C_GOLD, pa), (TILE_SIZE // 2, TILE_SIZE // 2), inner_r + 2, 3)
+                screen.blit(ls, (cx - TILE_SIZE // 2, cy - TILE_SIZE // 2))
 
-            # ------------------------------
-            # ELEMENT RING
-            # ------------------------------
-            element_colors = {
-                "fire": E_FIRE,
-                "water": E_WATER,
-                "leaf": E_LEAF,
-                "null": E_NULL
-            }
-
-            pygame.draw.circle(
-                screen,
-                element_colors.get(card.element, C_WHITE),
-                (cx, cy),
-                TILE_SIZE // 2 - 6,
-                3
-            )
-
-            # ------------------------------
-            # 💚 HEALING RING (VISUAL FEEDBACK)
-            # ------------------------------
+            # Heal ring
             if card.heal_flash_timer > 0:
-                pygame.draw.circle(
-                    screen,
-                    (100, 255, 100),     # soft green
-                    (cx, cy),
-                    TILE_SIZE // 2,
-                    4
-                )
+                hs = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+                ha = int(150 * (card.heal_flash_timer / 10))
+                pygame.draw.circle(hs, (*C_SUCCESS, ha), (TILE_SIZE // 2, TILE_SIZE // 2), TILE_SIZE // 2 - 2, 4)
+                screen.blit(hs, (cx - TILE_SIZE // 2, cy - TILE_SIZE // 2))
 
-
-            # ------------------------------
-            # LABEL
-            # ------------------------------
+            # Label
             label = f"P{card.index + 1}" if card.owner == "player" else f"E{card.index + 1}"
-            txt = FONT_BIG.render(label, True, C_WHITE)
-            screen.blit(
-                txt,
-                (cx - txt.get_width() // 2, cy - txt.get_height() // 2)
-            )
+            sh = FONT_BIG.render(label, True, C_SHADOW)
+            screen.blit(sh, (cx - sh.get_width() // 2 + 1, cy - sh.get_height() // 2 + 1))
+            lt = FONT_BIG.render(label, True, C_WHITE)
+            screen.blit(lt, (cx - lt.get_width() // 2, cy - lt.get_height() // 2))
 
-            # ------------------------------
-            # HP BAR
-            # ------------------------------
+            # HP bar
             hp_ratio = max(0, card.display_hp / card.max_hp)
-
-            bar_w, bar_h = 70, 9
+            bar_w, bar_h = TILE_SIZE - 8, 10
             hx = cx - bar_w // 2
-            hy = cy - TILE_SIZE // 2 - 28
+            hy = cy - TILE_SIZE // 2 - PADDING_SM - bar_h
 
-            pygame.draw.rect(
-                screen,
-                (0, 0, 0),
-                (hx, hy, bar_w, bar_h),
-                border_radius=3
-            )
+            hp_color = C_SUCCESS if hp_ratio > 0.6 else C_WARNING if hp_ratio > 0.3 else C_DEFEAT
 
-            pygame.draw.rect(
-                screen,
-                (0, 200, 0),
-                (hx, hy, int(bar_w * hp_ratio), bar_h),
-                border_radius=3
-            )
+            pygame.draw.rect(screen, (*C_SHADOW, 180), (hx - 1, hy - 1, bar_w + 2, bar_h + 2), border_radius=5)
+            fill_w = max(0, int(bar_w * hp_ratio))
+            if fill_w > 0:
+                pygame.draw.rect(screen, hp_color, (hx, hy, fill_w, bar_h), border_radius=4)
+            hp_txt = FONT_SMALL.render(str(card.hp), True, C_TEXT)
+            screen.blit(hp_txt, (cx - hp_txt.get_width() // 2, hy + bar_h + 2))
 
-            hp_txt = FONT_MAIN.render(str(card.hp), True, C_WHITE)
-            screen.blit(
-                hp_txt,
-                (cx - hp_txt.get_width() // 2, hy + 12)
-            )
-
-    # =================================================
+    # ═════════════════════════════════════
     # ANIMATIONS
-    # =================================================
+    # ═════════════════════════════════════
     anim_mgr.draw(screen)
 
-    # =================================================
-    # CONFETTI (VICTORY ONLY)
-    # =================================================
-    if game_state == "victory":
-        if not confetti_particles:
-            spawn_confetti()
-        update_and_draw_confetti(screen)
-
-    # =================================================
-    # BOTTOM INSTRUCTION PANEL
-    # =================================================
-    panel_y = GRID_ROWS * TILE_SIZE
+    # ═════════════════════════════════════
+    # BOTTOM PANEL — Card Details + Controls
+    # ═════════════════════════════════════
+    panel_y = grid_pixel_h
     panel_h = HEIGHT - panel_y
 
+    # Layout: 38% left — 24% center — 38% right
+    left_w = int(WIDTH * 0.38)
+    center_w = WIDTH - left_w * 2
+    right_x = left_w + center_w
+
+    # Background
     panel = pygame.Surface((WIDTH, panel_h), pygame.SRCALPHA)
-    panel.fill((20, 20, 40, 220))
+    panel.fill((*C_BG_SECONDARY, 245))
+    pygame.draw.line(panel, C_ACCENT_DARK, (0, 0), (WIDTH, 0), 2)
+    for i in range(6):
+        pygame.draw.line(panel, (*C_SHADOW, 14 - i * 2), (0, i + 2), (WIDTH, i + 2))
     screen.blit(panel, (0, panel_y))
 
-    title = FONT_BIG.render("GAME INSTRUCTIONS", True, C_SELECT)
-    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, panel_y + 8))
+    # Column separators
+    pygame.draw.line(screen, (*C_ACCENT_DARK, 80), (left_w, panel_y + 8), (left_w, HEIGHT - 8))
+    pygame.draw.line(screen, (*C_ACCENT_DARK, 80), (right_x, panel_y + 8), (right_x, HEIGHT - 8))
 
-    turn = "ENEMY TURN" if anim_mgr.blocking else "PLAYER TURN"
-    turn_color = C_ENEMY if anim_mgr.blocking else C_PLAYER
-    turn_txt = FONT_MAIN.render(f"Turn: {turn}", True, turn_color)
-    screen.blit(turn_txt, (20, panel_y + 40))
+    base_y = panel_y + 10
+
+    # ── Gather all cards on the grid ──
+    player_cards = []
+    enemy_cards = []
+    for gc in range(grid.cols):
+        for gr in range(grid.rows):
+            cd = grid.tiles[gc][gr].card
+            if cd and cd.owner == "player":
+                player_cards.append(cd)
+            elif cd and cd.owner == "enemy":
+                enemy_cards.append(cd)
+    player_cards.sort(key=lambda c: c.index)
+    enemy_cards.sort(key=lambda c: c.index)
+
+    # ── Which player card is selected? ──
+    sel_card_idx = -1
+    if selected_pos:
+        sc, sr = selected_pos
+        sel_c = grid.tiles[sc][sr].card
+        if sel_c and sel_c.owner == "player":
+            sel_card_idx = sel_c.index
+
+    # ──────────────────────────────────
+    # Helper: Draw one card info block
+    # ──────────────────────────────────
+    def _draw_card_block(card, bx, by, block_w, block_h, owner_color, owner_glow, atk_keys=None, is_selected=False):
+        elem_c = ELEM_COLORS.get(card.element, E_NULL)
+        elem_g = ELEM_GLOW.get(card.element, E_NULL_GLOW)
+
+        frame_rect = pygame.Rect(bx, by, block_w, block_h)
+
+        # Selected card highlight
+        if is_selected:
+            glow_s = pygame.Surface((block_w + 8, block_h + 8), pygame.SRCALPHA)
+            pa = int(35 + 20 * math.sin(_frame_count * 0.07))
+            pygame.draw.rect(glow_s, (*C_GOLD, pa), (0, 0, block_w + 8, block_h + 8), border_radius=RADIUS_SM + 4)
+            screen.blit(glow_s, (bx - 4, by - 4))
+
+        # Frame bg
+        pygame.draw.rect(screen, (*C_BG_TERTIARY, 200), frame_rect, border_radius=RADIUS_SM)
+
+        # Element color stripe at top
+        pygame.draw.rect(screen, elem_c, (bx, by, block_w, 3), border_radius=2)
+
+        # ── Row 1: Tag + Name ──
+        ny = by + 6
+        label = f"P{card.index + 1}" if card.owner == "player" else f"E{card.index + 1}"
+        tag = FONT_MAIN.render(label, True, owner_glow)
+        screen.blit(tag, (bx + 6, ny))
+
+        # Card name — clip to available width
+        name_x = bx + 6 + tag.get_width() + 4
+        name_avail = block_w - tag.get_width() - 16
+        cname = card.name
+        name_s = FONT_SMALL.render(cname, True, C_TEXT)
+        while name_s.get_width() > name_avail and len(cname) > 3:
+            cname = cname[:-1]
+            name_s = FONT_SMALL.render(cname + "…", True, C_TEXT)
+        if len(cname) < len(card.name):
+            name_s = FONT_SMALL.render(cname + "…", True, C_TEXT)
+        screen.blit(name_s, (name_x, ny + 3))
+
+        # ── Row 2: Element badge + HP bar ──
+        hp_y = ny + 24
+        # Element badge (left)
+        elem_str = card.element[:4].upper()
+        elem_surf = FONT_MICRO.render(elem_str, True, elem_g)
+        eb_rect = pygame.Rect(bx + 6, hp_y, elem_surf.get_width() + 8, 16)
+        pygame.draw.rect(screen, (*elem_c, 50), eb_rect, border_radius=4)
+        pygame.draw.rect(screen, (*elem_c, 100), eb_rect, 1, border_radius=4)
+        screen.blit(elem_surf, (bx + 10, hp_y + 1))
+
+        # HP bar (right of badge)
+        hp_ratio = max(0.0, card.hp / card.max_hp) if card.max_hp > 0 else 0
+        bar_x = eb_rect.right + 6
+        bar_w = block_w - (bar_x - bx) - 50
+        bar_h = 10
+        hp_color = C_SUCCESS if hp_ratio > 0.6 else C_WARNING if hp_ratio > 0.3 else C_DEFEAT
+
+        pygame.draw.rect(screen, (*C_SHADOW, 140), (bar_x, hp_y + 3, bar_w, bar_h), border_radius=5)
+        fill_w = max(0, int(bar_w * hp_ratio))
+        if fill_w > 0:
+            pygame.draw.rect(screen, hp_color, (bar_x, hp_y + 3, fill_w, bar_h), border_radius=5)
+
+        hp_num = FONT_MICRO.render(f"{card.hp}/{card.max_hp}", True, C_TEXT)
+        screen.blit(hp_num, (bx + block_w - hp_num.get_width() - 6, hp_y + 1))
+
+        # ── Divider ──
+        div_y = hp_y + 22
+        pygame.draw.line(screen, (*C_ACCENT_DARK, 50), (bx + 6, div_y), (bx + block_w - 6, div_y))
+
+        # ── Attacks list ──
+        ay = div_y + 6
+        for i, atk in enumerate(card.attacks):
+            if ay + 22 > by + block_h - 4:
+                break
+            atk_ec = ELEM_COLORS.get(atk.element, E_NULL)
+            atk_eg = ELEM_GLOW.get(atk.element, E_NULL_GLOW)
+
+            # Alternating row bg
+            if i % 2 == 0:
+                row_bg = pygame.Rect(bx + 4, ay - 1, block_w - 8, 22)
+                pygame.draw.rect(screen, (*C_BG_PRIMARY, 50), row_bg, border_radius=3)
+
+            # Key badge or element dot
+            if atk_keys and i < len(atk_keys):
+                _draw_key_badge(screen, atk_keys[i], bx + 6, ay, 20)
+                atk_x = bx + 30
+            else:
+                pygame.draw.circle(screen, atk_ec, (bx + 14, ay + 9), 4)
+                atk_x = bx + 24
+
+            # Attack name — auto-clip
+            aname = atk.name
+            stat_space = 56  # space for "16 r3"
+            name_max_w = block_w - (atk_x - bx) - stat_space
+            an = FONT_SMALL.render(aname, True, atk_eg)
+            while an.get_width() > name_max_w and len(aname) > 3:
+                aname = aname[:-1]
+                an = FONT_SMALL.render(aname + "…", True, atk_eg)
+            if len(aname) < len(atk.name):
+                an = FONT_SMALL.render(aname + "…", True, atk_eg)
+            screen.blit(an, (atk_x, ay + 1))
+
+            # Damage + Range (right)
+            dmg_c = C_DEFEAT if atk.dmg >= 14 else C_WARNING if atk.dmg >= 10 else C_TEXT_SEC
+            stats = f"{atk.dmg} r{atk.attack_range}"
+            st = FONT_SMALL.render(stats, True, dmg_c)
+            screen.blit(st, (bx + block_w - st.get_width() - 8, ay + 1))
+
+            ay += 24
+
+        # Frame border
+        border_color = C_GOLD if is_selected else (*owner_color, 100)
+        bw = 2 if is_selected else 1
+        pygame.draw.rect(screen, border_color, frame_rect, bw, border_radius=RADIUS_SM)
+
+    # ──────────────────────────────────
+    # LEFT COLUMN: Player Cards
+    # ──────────────────────────────────
+    lx = PADDING_SM
+    section_title = FONT_BIG.render("YOUR UNITS", True, C_PLAYER_GLOW)
+    screen.blit(section_title, (lx, base_y))
+
+    card_area_y = base_y + 34
+    card_area_h = panel_h - 50
+    num_p = max(len(player_cards), 1)
+    gap = 8
+    avail_w = left_w - PADDING_SM * 2
+    pc_block_w = (avail_w - gap * (num_p - 1)) // num_p
+    pc_block_w = min(pc_block_w, 230)
+
+    player_atk_keys_map = {0: ["Q", "W", "E"], 1: ["A", "S", "D"], 2: ["Z", "X", "C"]}
+    for i, pc in enumerate(player_cards):
+        px = lx + i * (pc_block_w + gap)
+        _draw_card_block(pc, px, card_area_y, pc_block_w, card_area_h,
+                         C_PLAYER, C_PLAYER_GLOW,
+                         atk_keys=player_atk_keys_map.get(pc.index),
+                         is_selected=(pc.index == sel_card_idx))
+
+    # ──────────────────────────────────
+    # CENTER COLUMN: Status + Controls
+    # ──────────────────────────────────
+    cx = left_w + PADDING_MD
+    cw = center_w - PADDING_MD * 2
+
+    # Turn badge
+    turn_label = "ENEMY TURN" if anim_mgr.blocking else "YOUR TURN"
+    turn_color = C_ENEMY_GLOW if anim_mgr.blocking else C_PLAYER_GLOW
+    badge_w = min(220, cw)
+    badge_rect = pygame.Rect(cx + (cw - badge_w) // 2, base_y, badge_w, 32)
+    pygame.draw.rect(screen, (*turn_color, 30), badge_rect, border_radius=RADIUS_SM)
+    pygame.draw.rect(screen, turn_color, badge_rect, 2, border_radius=RADIUS_SM)
+    tl = FONT_BIG.render(turn_label, True, turn_color)
+    screen.blit(tl, (badge_rect.x + (badge_w - tl.get_width()) // 2, base_y + 2))
 
     if placing_phase:
-        place_txt = FONT_MAIN.render(
-            f"Placement: 1=Fire  2=Water  3=Leaf  4=Null | Selected: {selected_player_element.upper()}",
-            True,
-            C_HIGHLIGHT
-        )
-        screen.blit(place_txt, (20, panel_y + 65))
+        ey = base_y + 46
+        screen.blit(FONT_MAIN.render("PLACE YOUR UNITS", True, C_GOLD), (cx, ey))
+        ey += 30
+        screen.blit(FONT_SMALL.render("Select element, then click grid:", True, C_TEXT_SEC), (cx, ey))
+        ey += 28
+        elems = [("1  Fire", E_FIRE, "fire"), ("2  Water", E_WATER, "water"),
+                 ("3  Leaf", E_LEAF, "leaf"), ("4  Null", E_NULL, "null")]
+        for lbl, col, key in elems:
+            is_sel = key == selected_player_element
+            pill = pygame.Rect(cx, ey, cw, 28)
+            if is_sel:
+                pygame.draw.rect(screen, (*col, 40), pill, border_radius=6)
+                pygame.draw.rect(screen, col, pill, 2, border_radius=6)
+                marker = FONT_MAIN.render("▸ " + lbl, True, col)
+            else:
+                marker = FONT_SMALL.render("  " + lbl, True, C_TEXT_DIM)
+            screen.blit(marker, (cx + 8, ey + 3))
+            ey += 32
+    else:
+        # ── Compact key reference ──
+        iy = base_y + 46
+        screen.blit(FONT_SMALL.render("CONTROLS", True, C_GOLD), (cx, iy))
+        iy += 22
 
-    controls = [
-        "Move: Click Hero → Click Tile",
-        "Target Enemy: Hold 1 / 2 / 3",
-        "Enemy Turn: Press M"
+        # Key rows — compact
+        key_rows = [
+            ("P1", C_PLAYER_GLOW, ["Q", "W", "E"]),
+            ("P2", C_PLAYER_GLOW, ["A", "S", "D"]),
+            ("P3", C_PLAYER_GLOW, ["Z", "X", "C"]),
+        ]
+        for lbl, lbl_c, keys in key_rows:
+            l = FONT_MICRO.render(lbl, True, lbl_c)
+            screen.blit(l, (cx, iy + 3))
+            kx = cx + 30
+            for k in keys:
+                _draw_key_badge(screen, k, kx, iy, 22)
+                kx += 28
+            iy += 28
+
+        # Target keys
+        iy += 4
+        screen.blit(FONT_MICRO.render("Target", True, C_WARNING), (cx, iy + 3))
+        tkx = cx + 50
+        for tk in ["1", "2", "3"]:
+            _draw_key_badge(screen, tk, tkx, iy, 22)
+            tkx += 28
+        iy += 28
+
+        # Move + CPU keys
+        screen.blit(FONT_MICRO.render("Move", True, C_ACCENT_GLOW), (cx, iy + 3))
+        screen.blit(FONT_MICRO.render("Click card → tile", True, C_TEXT_DIM), (cx + 50, iy + 3))
+        iy += 22
+        screen.blit(FONT_MICRO.render("CPU", True, C_TEXT_SEC), (cx, iy + 3))
+        _draw_key_badge(screen, "M", cx + 50, iy, 22)
+        iy += 28
+
+        # Help hint
+        pygame.draw.line(screen, (*C_ACCENT_DARK, 50), (cx, iy), (cx + cw, iy))
+        iy += 6
+        screen.blit(FONT_MICRO.render("Press H for help", True, C_TEXT_DIM), (cx, iy))
+
+    # ──────────────────────────────────
+    # RIGHT COLUMN: Enemy Cards
+    # ──────────────────────────────────
+    rx = right_x + PADDING_SM
+    section_title_e = FONT_BIG.render("ENEMY UNITS", True, C_ENEMY_GLOW)
+    screen.blit(section_title_e, (rx, base_y))
+
+    num_e = max(len(enemy_cards), 1)
+    avail_w_r = WIDTH - right_x - PADDING_SM * 2
+    ec_block_w = (avail_w_r - gap * (num_e - 1)) // num_e
+    ec_block_w = min(ec_block_w, 230)
+
+    for i, ec in enumerate(enemy_cards):
+        ex = rx + i * (ec_block_w + gap)
+        _draw_card_block(ec, ex, card_area_y, ec_block_w, card_area_h,
+                         C_ENEMY, C_ENEMY_GLOW)
+
+
+# ═══════════════════════════════════════════════════════
+# HELP OVERLAY (toggled with H key)
+# ═══════════════════════════════════════════════════════
+def draw_help_overlay(screen):
+    overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 200))
+    screen.blit(overlay, (0, 0))
+
+    # Panel
+    pw, ph = 600, 460
+    px = WIDTH // 2 - pw // 2
+    py = HEIGHT // 2 - ph // 2
+    panel_rect = pygame.Rect(px, py, pw, ph)
+    pygame.draw.rect(screen, (*C_BG_SECONDARY, 250), panel_rect, border_radius=RADIUS_LG)
+    pygame.draw.rect(screen, C_ACCENT, panel_rect, 2, border_radius=RADIUS_LG)
+
+    # Title
+    title = FONT_BIG.render("HOW TO PLAY", True, C_GOLD)
+    screen.blit(title, (px + pw // 2 - title.get_width() // 2, py + 16))
+
+    iy = py + 56
+    indent = px + 32
+
+    sections = [
+        ("MOVEMENT", C_ACCENT_GLOW, [
+            "• Click one of your heroes on the grid to select it",
+            "• Click an empty tile within move range to move",
+            "• Blue tiles show move range, red tiles show attack range",
+        ]),
+        ("ATTACKING", C_DEFEAT, [
+            "• Hold  1 / 2 / 3  to target enemy E1 / E2 / E3",
+            "• While holding target key, press attack key:",
+            "    P1 attacks: Q  W  E    (3 attacks)",
+            "    P2 attacks: A  S  D",
+            "    P3 attacks: Z  X  C",
+        ]),
+        ("HEALING", E_LEAF, [
+            "• Leaf cards with 'Nature Heal' restore HP to your unit",
+            "• Use the heal attack key while targeting any enemy",
+        ]),
+        ("OTHER", C_TEXT_SEC, [
+            "• Press  M  to trigger CPU turn",
+            "• Fire trail tiles damage enemies walking over them",
+            "• Each card has an element — check matchups!",
+        ]),
     ]
 
-    y = panel_y + 95
-    for line in controls:
-        screen.blit(FONT_MAIN.render(line, True, C_WHITE), (20, y))
-        y += 20
+    for sec_title, sec_color, lines in sections:
+        st = FONT_MAIN.render(sec_title, True, sec_color)
+        screen.blit(st, (indent, iy))
+        iy += 24
+        for line in lines:
+            lt = FONT_SMALL.render(line, True, C_TEXT_SEC)
+            screen.blit(lt, (indent, iy))
+            iy += 20
+        iy += 10
 
-    atk_x = WIDTH // 2 + 40
-    atk_y = panel_y + 40
-    screen.blit(FONT_MAIN.render("Attack Keys", True, C_HIGHLIGHT), (atk_x, atk_y))
-
-    atk_lines = [
-        "Hero 1: Q W E",
-        "Hero 2: A S D",
-        "Hero 3: Z X C"
-    ]
-
-    y = atk_y + 25
-    for line in atk_lines:
-        screen.blit(FONT_MAIN.render(line, True, C_WHITE), (atk_x, y))
-        y += 20
-
-    # =================================================
-    # END GAME TEXT
-    # =================================================
-    if game_state == "victory":
-        msg = FONT_BIG.render("YOU WIN!", True, C_VICTORY)
-        screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2))
-    elif game_state == "defeat":
-        msg = FONT_BIG.render("YOU LOSE!", True, C_DEFEAT)
-        screen.blit(msg, (WIDTH // 2 - msg.get_width() // 2, HEIGHT // 2))
+    # Close hint
+    close = FONT_SMALL.render("Press  H  to close", True, C_TEXT_DIM)
+    screen.blit(close, (px + pw // 2 - close.get_width() // 2, py + ph - 32))

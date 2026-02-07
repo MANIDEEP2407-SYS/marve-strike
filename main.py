@@ -10,11 +10,12 @@ from effects import (
 )
 from logic_attack import initiate_player_attack
 from logic_cpu.advanced_cpu import advanced_cpu_turn as cpu_turn
-from ui_draw import draw_ui
+from ui_draw import draw_ui, spawn_confetti, update_and_draw_confetti, draw_help_overlay
 from card import Card
 from attack import Attack
 from colors import *
 from fonts import *
+import math
 
 pygame.init()
 pygame.display.set_caption("Card Strike: Elemental GUI")
@@ -32,6 +33,7 @@ hovered_cell = (0, 0)
 placing_phase = True
 placed_count = 0
 cpu_pending = False
+show_help = False
 
 # Player variant selection during placement
 selected_player_element = "fire"  # default
@@ -219,6 +221,12 @@ while running:
                 selected_player_element = "null"
 
         # ---------------------------------
+        # HELP TOGGLE (H key)
+        # ---------------------------------
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+            show_help = not show_help
+
+        # ---------------------------------
         # MOUSE CLICK
         # ---------------------------------
         if event.type == pygame.MOUSEBUTTONDOWN and not anim_mgr.blocking:
@@ -312,31 +320,96 @@ while running:
         selected_player_element
     )
 
+    # Help overlay
+    if show_help and game_state == "playing":
+        draw_help_overlay(screen)
+
     if game_state != "playing":
         overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 200)) # Darken background
+        overlay.fill((0, 0, 0, 200))
         screen.blit(overlay, (0, 0))
-        
 
-        
+        _finish_frame = getattr(pygame, '_finish_frame', 0) + 1
+        pygame._finish_frame = _finish_frame
+
         if game_state == "victory":
-            text = "🏆 YOU WON! 🏆"
-            color = (100, 255, 100)
-            print("GAME OVER: PLAYER WON!")
-        else:
-            text = "💀 CPU WON! 💀"
-            color = (255, 50, 50)
-            print("GAME OVER: CPU WON!")
-            
-        txt_surf = FONT_TITLE.render(text, True, color)
-        
-        # Shadow
-        shadow = FONT_TITLE.render(text, True, (0, 0, 0))
-        screen.blit(shadow, (WIDTH//2 - txt_surf.get_width()//2 + 4, HEIGHT//2 - txt_surf.get_height()//2 + 4))
-        
-        screen.blit(txt_surf, (WIDTH//2 - txt_surf.get_width()//2, HEIGHT//2 - txt_surf.get_height()//2))
+            # ── Confetti ──
+            if _finish_frame == 1:
+                spawn_confetti()
+            update_and_draw_confetti(screen)
 
-        # Stop logic updates
+            # Title glow
+            pulse = 0.8 + 0.2 * math.sin(_finish_frame * 0.06)
+            glow_a = int(60 * pulse)
+            title_text = "VICTORY"
+            title_color = C_VICTORY
+            icon_text = "★"
+        else:
+            title_text = "DEFEAT"
+            title_color = C_DEFEAT
+            icon_text = "✕"
+            # Ash particles for defeat
+            for _ in range(2):
+                ax = random.randint(0, WIDTH)
+                ay = random.randint(0, HEIGHT)
+                ash_a = random.randint(20, 60)
+                pygame.draw.circle(screen, (*C_TEXT_DIM, ash_a), (ax, ay), random.randint(1, 3))
+
+        # ── Trophy / Skull icon ──
+        icon_surf = FONT_HERO.render(icon_text, True, title_color)
+        screen.blit(icon_surf, (WIDTH // 2 - icon_surf.get_width() // 2, HEIGHT // 2 - 180))
+
+        # ── Title text with shadow ──
+        shadow = FONT_HERO.render(title_text, True, C_SHADOW)
+        screen.blit(shadow, (WIDTH // 2 - shadow.get_width() // 2 + 4, HEIGHT // 2 - 90 + 4))
+        txt_surf = FONT_HERO.render(title_text, True, title_color)
+        screen.blit(txt_surf, (WIDTH // 2 - txt_surf.get_width() // 2, HEIGHT // 2 - 90))
+
+        # ── Stats panel ──
+        panel_w, panel_h = 400, 120
+        px = WIDTH // 2 - panel_w // 2
+        py = HEIGHT // 2 + 20
+        panel_rect = pygame.Rect(px, py, panel_w, panel_h)
+        pygame.draw.rect(screen, (*C_BG_TERTIARY, 220), panel_rect, border_radius=RADIUS_MD)
+        pygame.draw.rect(screen, C_ACCENT_DARK, panel_rect, 2, border_radius=RADIUS_MD)
+
+        p_alive = sum(1 for col in grid.tiles for tile in col if tile.card and tile.card.owner == "player")
+        e_alive = sum(1 for col in grid.tiles for tile in col if tile.card and tile.card.owner == "enemy")
+        stat1 = FONT_MAIN.render(f"Your Units Alive: {p_alive}", True, C_PLAYER_GLOW)
+        stat2 = FONT_MAIN.render(f"Enemy Units Alive: {e_alive}", True, C_ENEMY_GLOW)
+        screen.blit(stat1, (px + 24, py + 24))
+        screen.blit(stat2, (px + 24, py + 60))
+
+        # ── PLAY AGAIN button ──
+        btn_w, btn_h = 280, 56
+        btn_x = WIDTH // 2 - btn_w // 2
+        btn_y = HEIGHT // 2 + 170
+        btn_rect = pygame.Rect(btn_x, btn_y, btn_w, btn_h)
+        btn_hov = btn_rect.collidepoint(pygame.mouse.get_pos())
+        btn_color = C_ACCENT_GLOW if btn_hov else C_ACCENT
+        pygame.draw.rect(screen, btn_color, btn_rect, border_radius=RADIUS_MD)
+        pygame.draw.rect(screen, C_GOLD if btn_hov else C_ACCENT_DARK, btn_rect, 3, border_radius=RADIUS_MD)
+        btn_text = FONT_BIG.render("PLAY AGAIN", True, C_TEXT)
+        screen.blit(btn_text, (btn_x + (btn_w - btn_text.get_width()) // 2, btn_y + 12))
+
+        # Handle restart click
+        for ev in pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            if btn_rect.collidepoint(ev.pos):
+                # Reset everything
+                grid = Grid(GRID_COLS, GRID_ROWS)
+                selected_pos = None
+                placing_phase = True
+                placed_count = 0
+                cpu_pending = False
+                game_state = "playing"
+                show_help = False
+                stealing_phase.reset()
+                stealing_phase_active = True
+                player_final_cards = []
+                cpu_final_cards = []
+                anim_mgr.blocking = False
+                pygame._finish_frame = 0
+
         anim_mgr.blocking = True
 
     pygame.display.flip()

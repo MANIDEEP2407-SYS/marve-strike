@@ -313,6 +313,166 @@ class GlitchEffect:
             s.fill((*color, alpha))
             surf.blit(s, rect)
 
+
+class StrikeEffect:
+    """Quick impact flash — used for backstab, counter, dash hits"""
+    def __init__(self, x, y, color, flash_color):
+        self.x, self.y = x, y
+        self.color = color
+        self.flash_color = flash_color
+        self.life = 18
+        self.radius = 5
+
+    def update(self):
+        self.life -= 1
+        self.radius += 5
+
+    def draw(self, surf):
+        if self.life <= 0:
+            return
+        alpha = int((self.life / 18) * 255)
+        s = pygame.Surface((200, 200), pygame.SRCALPHA)
+        cx, cy = 100, 100
+        # Expanding ring
+        if self.radius > 2:
+            pygame.draw.circle(s, (*self.flash_color, alpha), (cx, cy), self.radius, 4)
+        # Cross slash lines
+        length = self.radius
+        for angle in [0, math.pi/4, math.pi/2, 3*math.pi/4]:
+            x1 = cx + int(math.cos(angle) * length)
+            y1 = cy + int(math.sin(angle) * length)
+            x2 = cx - int(math.cos(angle) * length)
+            y2 = cy - int(math.sin(angle) * length)
+            pygame.draw.line(s, (*self.color, alpha), (x1, y1), (x2, y2), 3)
+        # Core flash
+        if self.life > 10:
+            pygame.draw.circle(s, (*self.flash_color, min(255, alpha * 2)), (cx, cy), 8)
+        surf.blit(s, (self.x - 100, self.y - 100))
+
+
+class SplashEffect:
+    """Water splash with droplets arcing outward"""
+    def __init__(self, x, y, color, droplet_color, radius=50, droplet_count=12):
+        self.x, self.y = x, y
+        self.color = color
+        self.droplet_color = droplet_color
+        self.radius = radius
+        self.life = 30
+        self.droplets = []
+        for _ in range(droplet_count):
+            angle = random.uniform(0, math.pi * 2)
+            speed = random.uniform(2, 5)
+            self.droplets.append({
+                'x': float(x), 'y': float(y),
+                'vx': math.cos(angle) * speed,
+                'vy': math.sin(angle) * speed - 2,
+                'size': random.randint(3, 7),
+                'alpha': 255
+            })
+
+    def update(self):
+        self.life -= 1
+        for d in self.droplets:
+            d['x'] += d['vx']
+            d['y'] += d['vy']
+            d['vy'] += 0.15
+            d['alpha'] = max(0, d['alpha'] - 8)
+            d['size'] = max(0.5, d['size'] * 0.97)
+
+    def draw(self, surf):
+        for d in self.droplets:
+            if d['alpha'] > 0 and d['size'] > 0.5:
+                sz = int(d['size'])
+                s = pygame.Surface((sz * 2 + 2, sz * 2 + 2), pygame.SRCALPHA)
+                pygame.draw.circle(s, (*self.droplet_color, int(d['alpha'])), (sz + 1, sz + 1), sz)
+                surf.blit(s, (d['x'] - sz - 1, d['y'] - sz - 1))
+        # Central ring
+        if self.life > 10:
+            ring_a = int((self.life - 10) / 20 * 200)
+            ring_r = max(1, (30 - self.life) * 3)
+            rs = pygame.Surface((ring_r * 2 + 4, ring_r * 2 + 4), pygame.SRCALPHA)
+            pygame.draw.circle(rs, (*self.color, ring_a), (ring_r + 2, ring_r + 2), ring_r, 3)
+            surf.blit(rs, (self.x - ring_r - 2, self.y - ring_r - 2))
+
+
+class TrapEffect:
+    """Grid-pattern trap — digital trap for null attacks"""
+    def __init__(self, x, y, color, grid_color, size=50):
+        self.x, self.y = x, y
+        self.color = color
+        self.grid_color = grid_color
+        self.size = size
+        self.life = 30
+        self.progress = 0.0
+
+    def update(self):
+        self.life -= 1
+        self.progress = min(1.0, self.progress + 0.08)
+
+    def draw(self, surf):
+        if self.life <= 0:
+            return
+        alpha = int((self.life / 30) * 200)
+        dim = self.size * 2
+        s = pygame.Surface((dim + 4, dim + 4), pygame.SRCALPHA)
+        cx, cy = dim // 2 + 2, dim // 2 + 2
+        step = 12
+        extent = int(self.size * self.progress)
+        for i in range(-extent, extent + 1, step):
+            pygame.draw.line(s, (*self.grid_color, alpha // 2), (cx + i, cy - extent), (cx + i, cy + extent), 1)
+            pygame.draw.line(s, (*self.grid_color, alpha // 2), (cx - extent, cy + i), (cx + extent, cy + i), 1)
+        # Diamond border
+        pts = [(cx, cy - extent), (cx + extent, cy), (cx, cy + extent), (cx - extent, cy)]
+        if extent > 4:
+            pygame.draw.polygon(s, (*self.color, alpha), pts, 3)
+        # Pulsing core
+        core_a = int(alpha * (0.5 + 0.5 * math.sin(self.progress * 10)))
+        pygame.draw.circle(s, (*self.color, core_a), (cx, cy), 6)
+        surf.blit(s, (self.x - dim // 2 - 2, self.y - dim // 2 - 2))
+
+
+class WaveEffect:
+    """Expanding wave sweep"""
+    def __init__(self, sx, sy, ex, ey, color, width=60):
+        self.sx, self.sy = sx, sy
+        self.ex, self.ey = ex, ey
+        self.color = color
+        self.width = width
+        self.life = 25
+        self.progress = 0.0
+
+    def update(self):
+        self.life -= 1
+        self.progress = min(1.0, self.progress + 0.06)
+
+    def draw(self, surf):
+        if self.life <= 0:
+            return
+        alpha = int((self.life / 25) * 200)
+        # Current wave front position
+        fx = self.sx + (self.ex - self.sx) * self.progress
+        fy = self.sy + (self.ey - self.sy) * self.progress
+        # Perpendicular direction
+        angle = math.atan2(self.ey - self.sy, self.ex - self.sx) + math.pi / 2
+        hw = self.width * self.progress
+        x1 = int(fx + math.cos(angle) * hw)
+        y1 = int(fy + math.sin(angle) * hw)
+        x2 = int(fx - math.cos(angle) * hw)
+        y2 = int(fy - math.sin(angle) * hw)
+        pygame.draw.line(surf, (*self.color, alpha), (x1, y1), (x2, y2), 6)
+        # Trailing arcs
+        for i in range(3):
+            t = max(0, self.progress - i * 0.12)
+            bx = self.sx + (self.ex - self.sx) * t
+            by = self.sy + (self.ey - self.sy) * t
+            ba = max(0, alpha - i * 60)
+            bw = self.width * t * 0.6
+            bx1 = int(bx + math.cos(angle) * bw)
+            by1 = int(by + math.sin(angle) * bw)
+            bx2 = int(bx - math.cos(angle) * bw)
+            by2 = int(by - math.sin(angle) * bw)
+            pygame.draw.line(surf, (*self.color, ba), (bx1, by1), (bx2, by2), 3)
+
 class AnimationManager:
     def __init__(self):
         self.particles = []
@@ -365,9 +525,9 @@ class AnimationManager:
             color = tuple(anim_config.get('color', [180, 100, 220]))
             glitch_color = tuple(anim_config.get('glitch_color', [100, 255, 200]))
             self.special_effects.append(BeamEffect(sx, sy, ex, ey, color, glitch_color))
-        elif anim_category == 'aoe':
+        elif anim_category in ('aoe', 'aura', 'burst'):
             color = tuple(anim_config.get('color', [255, 80, 30]))
-            ring_color = tuple(anim_config.get('ring_color', [255, 200, 50]))
+            ring_color = tuple(anim_config.get('ring_color', anim_config.get('splash_color', [255, 200, 50])))
             self.special_effects.append(AOEEffect(ex, ey, color, ring_color))
         elif anim_category == 'vine':
             color = tuple(anim_config.get('color', [80, 200, 80]))
@@ -385,6 +545,37 @@ class AnimationManager:
             color = tuple(anim_config.get('color', [180, 100, 220]))
             glitch_color = tuple(anim_config.get('glitch_color', [100, 255, 200]))
             self.special_effects.append(GlitchEffect(ex, ey, color, glitch_color))
+        elif anim_category in ('splash',):
+            color = tuple(anim_config.get('color', [50, 150, 255]))
+            droplet_color = tuple(anim_config.get('droplet_color', [150, 220, 255]))
+            self.special_effects.append(SplashEffect(ex, ey, color, droplet_color))
+        elif anim_category in ('strike', 'counter', 'dash'):
+            color = tuple(anim_config.get('color', [255, 255, 255]))
+            flash_color = tuple(anim_config.get('flash_color', anim_config.get('trail_color', [255, 255, 200])))
+            self.special_effects.append(StrikeEffect(ex, ey, color, flash_color))
+        elif anim_category == 'wave':
+            color = tuple(anim_config.get('color', anim_config.get('wave_color', [50, 150, 255])))
+            self.special_effects.append(WaveEffect(sx, sy, ex, ey, color))
+        elif anim_category == 'trap':
+            color = tuple(anim_config.get('color', [180, 100, 220]))
+            grid_color = tuple(anim_config.get('grid_color', [100, 255, 200]))
+            self.special_effects.append(TrapEffect(ex, ey, color, grid_color))
+        elif anim_category == 'trail':
+            color = tuple(anim_config.get('color', [255, 100, 30]))
+            flame_color = tuple(anim_config.get('flame_color', [255, 200, 50]))
+            self.special_effects.append(AOEEffect(ex, ey, color, flame_color))
+        elif anim_category in ('heal_whirl', 'vine_whirl'):
+            # Combined effects
+            color = tuple(anim_config.get('color', [100, 255, 100]))
+            self.special_effects.append(HealEffect(ex, ey, color) if 'heal' in anim_category else VineEffect(sx, sy, ex, ey, color))
+            spiral_color = tuple(anim_config.get('spiral_color', [200, 255, 200]))
+            self.special_effects.append(WhirlwindEffect(ex, ey, spiral_color))
+        else:
+            # Fallback: projectile burst at target
+            elem_colors = {'fire': [255,100,30], 'water': [50,150,255], 'leaf': [80,200,80],
+                           'wind': [200,220,255], 'air': [200,220,255], 'null': [180,100,220]}
+            fb_color = tuple(elem_colors.get(element, [200, 200, 200]))
+            self.special_effects.append(AOEEffect(ex, ey, fb_color, fb_color))
         
         # Also create projectile for visual travel
         speed = anim_config.get('speed', 0.05)
@@ -491,9 +682,23 @@ class AnimationManager:
             elif elem == 'wind' or elem == 'air': color = (200, 220, 255)
             elif elem == 'null': color = (180, 100, 220)
             elif elem == 'combined': color = (255, 200, 100)
-            
+
+            # Outer glow
+            glow_s = pygame.Surface((40, 40), pygame.SRCALPHA)
+            pygame.draw.circle(glow_s, (*color, 60), (20, 20), 18)
+            temp_surf.blit(glow_s, (int(cx) - 20, int(cy) - 20))
+            # Main orb
             pygame.draw.circle(temp_surf, color, (int(cx), int(cy)), 10)
+            # Core
             pygame.draw.circle(temp_surf, C_WHITE, (int(cx), int(cy)), 5)
+            # Streak tail
+            prog = proj.get('progress', 0)
+            if prog > 0.1:
+                sx2, sy2 = proj['start']
+                tail_t = max(0, prog - 0.15)
+                tx = sx2 + (proj['end'][0] - sx2) * tail_t
+                ty = sy2 + (proj['end'][1] - sy2) * tail_t
+                pygame.draw.line(temp_surf, (*color, 120), (int(tx), int(ty)), (int(cx), int(cy)), 4)
 
         # Draw Floating Text
         for ft in self.floating_texts:

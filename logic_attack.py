@@ -85,6 +85,33 @@ def perform_attack_logic(ac, ar, tc, tr, atk, grid, dist=0):
         return
 
     # =====================================================
+    # 2b. Generic Heal attacks - RESTORE HP
+    # =====================================================
+    is_heal = ("heal" in atk.name.lower()) or ("heal" in getattr(atk, 'animation', '').lower())
+    if is_heal:
+        heal_amount = atk.dmg
+        healed_any = False
+
+        # Heal ALL allies on the board (except the attacker)
+        for gx in range(grid.cols):
+            for gy in range(grid.rows):
+                ally = grid.tiles[gx][gy].card
+                if ally and ally.owner == attacker.owner and ally is not attacker:
+                    ally_old = ally.hp
+                    ally.hp = min(ally.max_hp, ally.hp + heal_amount)
+                    ally_gained = ally.hp - ally_old
+                    if ally_gained > 0:
+                        ally.heal_flash_timer = 15
+                        anim_mgr.add_floating_text(f"+{ally_gained} HP", *cell_center(gx, gy), E_LEAF)
+                        healed_any = True
+
+        if healed_any:
+            anim_mgr.add_floating_text("HEAL!", *cell_center(ac, ar), E_LEAF)
+        else:
+            anim_mgr.add_floating_text("ALLIES FULL", *cell_center(ac, ar), E_LEAF)
+        return
+
+    # =====================================================
     # 3. Burning–Embrace Fusion — TEAM SAFE
     # =====================================================
     if atk.name == "Burning-Embrace Fusion":
@@ -173,9 +200,13 @@ def initiate_player_attack(player_idx, attack_idx, enemy_idx, grid):
         # Fallback based on element
         anim_type = f"projectile_{atk.element}" if atk.element != "null" else "beam_null"
 
+    # Heal attacks: animation targets self instead of enemy
+    is_heal_atk = ("heal" in atk.name.lower()) or ("heal" in (anim_type or '').lower())
+    anim_target = cell_center(*pc_pos) if is_heal_atk else cell_center(*ec_pos)
+
     anim_mgr.trigger_attack_anim(
         cell_center(*pc_pos),
-        cell_center(*ec_pos),
+        anim_target,
         atk.element,
         lambda: perform_attack_logic(
             pc_pos[0], pc_pos[1],

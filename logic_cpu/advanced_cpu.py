@@ -22,9 +22,6 @@ def advanced_cpu_turn(grid):
     # PHASE 2: COMBAT PHASE (Strict Move OR Attack)
     # -----------------------------------------------------------------
     
-    cpu_units = [] # Just for potential future use or consistency, though not strictly needed if we remove the stealing block completely.
-    # Actually, we can just remove the whole Phase 1 block and the cpu_units collection if it was only for stealing.
-    
     enemy_positions = []
     curr_player_positions = []
     
