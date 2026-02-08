@@ -81,45 +81,8 @@ def create_player_card(slot_index: int, element: str) -> Card:
     return card
 
 
-def create_enemy_card(slot_index: int) -> Card:
-    e = random.choice(["fire", "water", "leaf", "null"])
-    if e == "fire":
-        attacks = [
-            Attack("Burning Trail", 12, "fire", 5),
-            Attack("Fire Claw", 14, "fire", 4),
-            Attack("Inferno Burst", 16, "fire", 5),
-        ]
-    elif e == "water":
-        attacks = [
-            Attack("Water Lash", 10, "water", 5),
-            Attack("Tidal Push", 12, "water", 4),
-            Attack("Healing Wave", 8, "water", 4),
-        ]
-    elif e == "leaf":
-        attacks = [
-            Attack("Nature's Embrace", 10, "leaf", 4),
-            Attack("Vine Whip", 12, "leaf", 5),
-            Attack("Thorn Burst", 14, "leaf", 4),
-        ]
-    else:  # null
-        attacks = [
-            Attack("Strike", 12, "null", 4),
-            Attack("Guard Break", 14, "null", 4),
-            Attack("Focused Blow", 16, "null", 3),
-        ]
-    card = Card(
-        owner="enemy",
-        name=f"Beast {slot_index+1}",
-        hp=100,
-        max_hp=100,
-        attacks=attacks,
-        move_range=2,
-        element=e,
-        index=slot_index
-    )
-    card.display_hp = card.hp
-    return card
-
+# Legacy create_enemy_card removed — cards are now loaded from cards.json
+# via stealing_phase.create_card_from_pool() with diverse archetypes.
 
 def check_win_lose(grid):
     player_alive = any(

@@ -13,18 +13,64 @@ RARITY_MULT = {
 }
 
 
-def perform_attack_logic(ac, ar, tc, tr, atk, grid, dist=0):
+# =====================================================
+# PURE SIMULATION DAMAGE CALCULATOR (no side effects)
+# Used by Minimax AI to evaluate moves without touching
+# animations, effects, or the real game state.
+# =====================================================
+def simulate_attack_damage(attacker, target, atk, dist):
+    """
+    Returns estimated damage that `atk` would deal from `attacker` to `target`
+    at Manhattan distance `dist`. No side effects. No randomness.
+    """
+    if dist > atk.attack_range:
+        return 0
+    if not target or target.owner == attacker.owner:
+        return 0
+
+    dmg_reduction = dist
+    base_dmg = atk.dmg - dmg_reduction
+
+    # Special attacks
+    if atk.name == "Burning Trail":
+        return max(1, int(base_dmg * 0.5))
+
+    # Heal attacks deal 0 damage to enemies
+    is_heal = ("heal" in atk.name.lower()) or ("heal" in getattr(atk, 'animation', '').lower())
+    if is_heal:
+        return 0
+
+    # Normal attack path (deterministic for simulation — no random)
+    base = atk.dmg
+    mult = RARITY_MULT.get(getattr(attacker, 'rarity', 'normal'), 1.0)
+    dmg = int(base * mult)
+
+    # Shield absorption
+    shield = getattr(target, 'shield', 0)
+    if shield > 0:
+        absorbed = min(shield, dmg)
+        dmg -= absorbed
+
+    return max(0, dmg)
+
+
+def perform_attack_logic(ac, ar, tc, tr, atk, grid, dist=0, simulate=False):
+    """
+    Core attack logic. When simulate=True, calculates damage without
+    triggering animations, sound, or global effects (flame_tiles etc).
+    Returns the damage dealt (for simulation scoring).
+    """
     # ------------------------------
     # RANGE SAFETY CHECK
     # ------------------------------
     dist = abs(ac - tc) + abs(ar - tr)
     if dist > atk.attack_range:
-        return
+        return 0
 
     attacker = grid.tiles[ac][ar].card
     target = grid.tiles[tc][tr].card
     if not attacker:
-        return
+        return 0
 
     # ------------------------------
     # DAMAGE BASE CALCULATION

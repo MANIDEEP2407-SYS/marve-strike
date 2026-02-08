@@ -5,14 +5,15 @@
       "name": "Ember Vine",
       "element": "fire",
       "secondary": "leaf",
-      "hp": 50,
-      "speed": 8,
+      "rarity": "normal",
+      "hp": 55,
+      "speed": 7,
       "move": 3,
       "asset": "1.jpg",
       "attacks": [
-        { "name": "Ember Lash", "element": "fire", "damage": 14, "range": 3, "animation": "projectile_fire", "description": "Fire lash that burns enemies" },
-        { "name": "Vine Burn", "element": "leaf", "damage": 12, "range": 3, "animation": "vine_strike", "description": "Vine with burning effect" },
-        { "name": "Fusion Blast", "element": "combined", "damage": 16, "range": 3, "animation": "aoe_fire", "description": "Hybrid fire-vine attack" }
+        { "name": "Ember Lash", "element": "fire", "damage": 14, "range": 3, "animation": "projectile_fire", "description": "Mid-range fire lash" },
+        { "name": "Vine Burn", "element": "leaf", "damage": 11, "range": 4, "animation": "vine_strike", "description": "Extended vine with burning tip" },
+        { "name": "Fusion Blast", "element": "combined", "damage": 17, "range": 2, "animation": "aoe_fire", "description": "Close-range hybrid explosion" }
       ]
     },
     {
@@ -20,14 +21,15 @@
       "name": "Scorched Root",
       "element": "fire",
       "secondary": "leaf",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "rare",
+      "hp": 75,
+      "speed": 5,
+      "move": 2,
       "asset": "2.jpg",
       "attacks": [
-        { "name": "Root Burn", "element": "fire", "damage": 14, "range": 3, "animation": "projectile_fire", "description": "Burning root attack" },
-        { "name": "Magma Strike", "element": "fire", "damage": 16, "range": 3, "animation": "aoe_fire", "description": "Close-range magma attack" },
-        { "name": "Fusion Blaze", "element": "combined", "damage": 15, "range": 3, "animation": "aoe_fire", "description": "Combined fire-leaf attack" }
+        { "name": "Root Burn", "element": "fire", "damage": 18, "range": 1, "animation": "projectile_fire", "description": "Point-blank burning root slam" },
+        { "name": "Magma Strike", "element": "fire", "damage": 22, "range": 2, "animation": "aoe_fire", "description": "Devastating close-range magma hit" },
+        { "name": "Fusion Blaze", "element": "combined", "damage": 16, "range": 2, "animation": "aoe_fire", "description": "Tanky fire-leaf shield slam" }
       ]
     },
     {
@@ -35,14 +37,15 @@
       "name": "Flame Embrace",
       "element": "fire",
       "secondary": "leaf",
-      "hp": 50,
-      "speed": 8,
+      "rarity": "rare",
+      "hp": 45,
+      "speed": 7,
       "move": 3,
       "asset": "3.jpg",
       "attacks": [
-        { "name": "Flame Dash", "element": "fire", "damage": 15, "range": 3, "animation": "dash_fire", "description": "Fire dash dealing heavy damage" },
-        { "name": "Nature Heal", "element": "leaf", "damage": 8, "range": 3, "animation": "heal_aura", "description": "Healing aura for allies" },
-        { "name": "Fusion Surge", "element": "combined", "damage": 14, "range": 3, "animation": "aoe_fire", "description": "Dash + healing field hybrid" }
+        { "name": "Flame Dash", "element": "fire", "damage": 10, "range": 3, "animation": "dash_fire", "description": "Quick fire dash" },
+        { "name": "Nature Heal", "element": "leaf", "damage": 14, "range": 4, "animation": "heal_aura", "description": "Strong healing aura for allies" },
+        { "name": "Fusion Surge", "element": "combined", "damage": 8, "range": 3, "animation": "aoe_fire", "description": "Light damage with regen field" }
       ]
     },
     {
@@ -50,14 +53,15 @@
       "name": "Boiling Storm",
       "element": "fire",
       "secondary": "water",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "epic",
+      "hp": 38,
+      "speed": 6,
+      "move": 2,
       "asset": "4.jpg",
       "attacks": [
-        { "name": "Burn Trail", "element": "fire", "damage": 12, "range": 3, "animation": "trail_fire", "description": "Leaves flaming tiles" },
-        { "name": "Boil Burst", "element": "water", "damage": 14, "range": 3, "animation": "steam_burst", "description": "Steam explosion" },
-        { "name": "Fusion Steam", "element": "combined", "damage": 15, "range": 3, "animation": "steam_trail", "description": "Flame trail + steam burst" }
+        { "name": "Burn Trail", "element": "fire", "damage": 10, "range": 5, "animation": "trail_fire", "description": "Long-range fire trail" },
+        { "name": "Boil Burst", "element": "water", "damage": 14, "range": 5, "animation": "steam_burst", "description": "Long-range steam snipe" },
+        { "name": "Fusion Steam", "element": "combined", "damage": 12, "range": 6, "animation": "steam_trail", "description": "Maximum range steam bombardment" }
       ]
     },
     {
@@ -65,14 +69,15 @@
       "name": "Steam Surge",
       "element": "fire",
       "secondary": "water",
-      "hp": 50,
-      "speed": 8,
+      "rarity": "normal",
+      "hp": 55,
+      "speed": 7,
       "move": 3,
       "asset": "5.jpg",
       "attacks": [
-        { "name": "Steam Blast", "element": "water", "damage": 13, "range": 3, "animation": "steam_burst", "description": "Steam explosion" },
-        { "name": "Surge Strike", "element": "water", "damage": 15, "range": 3, "animation": "burst_water", "description": "Surging water strike" },
-        { "name": "Fusion Wave", "element": "combined", "damage": 16, "range": 3, "animation": "steam_burst", "description": "Steam and surge hybrid" }
+        { "name": "Steam Blast", "element": "water", "damage": 13, "range": 3, "animation": "steam_burst", "description": "Balanced steam burst" },
+        { "name": "Surge Strike", "element": "water", "damage": 16, "range": 2, "animation": "burst_water", "description": "Close-range water surge" },
+        { "name": "Fusion Wave", "element": "combined", "damage": 14, "range": 4, "animation": "steam_burst", "description": "Wide steam wave" }
       ]
     },
     {
@@ -80,14 +85,15 @@
       "name": "Flare Counter",
       "element": "fire",
       "secondary": "wind",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "epic",
+      "hp": 32,
+      "speed": 10,
+      "move": 4,
       "asset": "6.jpeg",
       "attacks": [
-        { "name": "Flare Hit", "element": "fire", "damage": 13, "range": 3, "animation": "counter_fire", "description": "Counter with fire reflect" },
-        { "name": "Gust Cut", "element": "wind", "damage": 12, "range": 3, "animation": "slash_wind", "description": "Wind pressure slash" },
-        { "name": "Fusion Cut", "element": "combined", "damage": 15, "range": 3, "animation": "slash_fire", "description": "Fire-wind counter" }
+        { "name": "Flare Hit", "element": "fire", "damage": 20, "range": 1, "animation": "counter_fire", "description": "Melee fire counter-strike" },
+        { "name": "Gust Cut", "element": "wind", "damage": 22, "range": 2, "animation": "slash_wind", "description": "Quick wind blade at close range" },
+        { "name": "Fusion Cut", "element": "combined", "damage": 24, "range": 1, "animation": "slash_fire", "description": "Lethal point-blank fire-wind slash" }
       ]
     },
     {
@@ -95,14 +101,15 @@
       "name": "Burning Push",
       "element": "water",
       "secondary": "fire",
+      "rarity": "normal",
       "hp": 50,
-      "speed": 8,
+      "speed": 7,
       "move": 3,
       "asset": "7.jpeg",
       "attacks": [
-        { "name": "Burn Trail", "element": "fire", "damage": 12, "range": 3, "animation": "trail_fire", "description": "Leaves flame tiles" },
-        { "name": "Aqua Push", "element": "water", "damage": 13, "range": 3, "animation": "push_water", "description": "Push wave attack" },
-        { "name": "Fusion Push", "element": "combined", "damage": 15, "range": 3, "animation": "steam_push", "description": "Push into flames" }
+        { "name": "Burn Trail", "element": "fire", "damage": 12, "range": 3, "animation": "trail_fire", "description": "Mid-range fire trail" },
+        { "name": "Aqua Push", "element": "water", "damage": 15, "range": 3, "animation": "push_water", "description": "Balanced push wave" },
+        { "name": "Fusion Push", "element": "combined", "damage": 17, "range": 2, "animation": "steam_push", "description": "Close-range steam push" }
       ]
     },
     {
@@ -110,14 +117,15 @@
       "name": "Aqua Trail",
       "element": "water",
       "secondary": "fire",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "rare",
+      "hp": 70,
+      "speed": 5,
+      "move": 2,
       "asset": "8.jpeg",
       "attacks": [
-        { "name": "Steam Trail", "element": "water", "damage": 12, "range": 3, "animation": "steam_trail", "description": "Steam trail attack" },
-        { "name": "Heavy Splash", "element": "water", "damage": 15, "range": 3, "animation": "burst_water", "description": "Heavy water splash" },
-        { "name": "Fusion Splash", "element": "combined", "damage": 14, "range": 3, "animation": "steam_trail", "description": "Steam and splash" }
+        { "name": "Steam Trail", "element": "water", "damage": 16, "range": 2, "animation": "steam_trail", "description": "Close-range steam wall" },
+        { "name": "Heavy Splash", "element": "water", "damage": 20, "range": 1, "animation": "burst_water", "description": "Devastating melee splash" },
+        { "name": "Fusion Splash", "element": "combined", "damage": 18, "range": 2, "animation": "steam_trail", "description": "Tank-grade steam slam" }
       ]
     },
     {
@@ -125,14 +133,15 @@
       "name": "Overgrowth",
       "element": "water",
       "secondary": "leaf",
-      "hp": 50,
-      "speed": 8,
+      "rarity": "rare",
+      "hp": 45,
+      "speed": 6,
       "move": 3,
       "asset": "9.jpeg",
       "attacks": [
-        { "name": "Boil Response", "element": "water", "damage": 14, "range": 3, "animation": "steam_burst", "description": "Steam burn reaction" },
-        { "name": "Growth Aura", "element": "leaf", "damage": 12, "range": 3, "animation": "aura_grow", "description": "Expanding damage aura" },
-        { "name": "Fusion Aura", "element": "combined", "damage": 15, "range": 3, "animation": "steam_aura", "description": "Steam + growth zone" }
+        { "name": "Boil Response", "element": "water", "damage": 8, "range": 3, "animation": "steam_burst", "description": "Light steam attack" },
+        { "name": "Growth Aura", "element": "leaf", "damage": 12, "range": 4, "animation": "heal_aura", "description": "Healing growth field for allies" },
+        { "name": "Fusion Aura", "element": "combined", "damage": 10, "range": 4, "animation": "steam_aura", "description": "Heal-zone with light damage" }
       ]
     },
     {
@@ -140,14 +149,15 @@
       "name": "Water Splash",
       "element": "water",
       "secondary": "wind",
-      "hp": 50,
-      "speed": 8,
+      "rarity": "epic",
+      "hp": 30,
+      "speed": 9,
       "move": 3,
       "asset": "10.jpeg",
       "attacks": [
-        { "name": "Splash Hit", "element": "water", "damage": 14, "range": 3, "animation": "splash_360", "description": "AoE water splash" },
-        { "name": "Whirl Zone", "element": "wind", "damage": 12, "range": 3, "animation": "whirlwind", "description": "Whirlwind push" },
-        { "name": "Fusion Whirl", "element": "combined", "damage": 15, "range": 3, "animation": "splash_whirl", "description": "Splash + whirl AoE" }
+        { "name": "Splash Hit", "element": "water", "damage": 20, "range": 4, "animation": "splash_360", "description": "High-damage water cannon" },
+        { "name": "Whirl Zone", "element": "wind", "damage": 18, "range": 5, "animation": "whirlwind", "description": "Long-range whirl snipe" },
+        { "name": "Fusion Whirl", "element": "combined", "damage": 24, "range": 3, "animation": "splash_whirl", "description": "Explosive splash + whirl combo" }
       ]
     },
     {
@@ -155,14 +165,15 @@
       "name": "Nature Wave",
       "element": "leaf",
       "secondary": "water",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "rare",
+      "hp": 72,
+      "speed": 5,
+      "move": 2,
       "asset": "11.jpeg",
       "attacks": [
-        { "name": "Root Anchor", "element": "leaf", "damage": 13, "range": 3, "animation": "vine_root", "description": "Root anchor attack" },
-        { "name": "Tower Slam", "element": "leaf", "damage": 16, "range": 3, "animation": "vine_slam", "description": "Powerful tower slam" },
-        { "name": "Fusion Wave", "element": "combined", "damage": 14, "range": 3, "animation": "wave_leaf", "description": "Wave and nature" }
+        { "name": "Root Anchor", "element": "leaf", "damage": 16, "range": 2, "animation": "vine_root", "description": "Heavy root slam" },
+        { "name": "Tower Slam", "element": "leaf", "damage": 20, "range": 1, "animation": "vine_slam", "description": "Devastating melee slam" },
+        { "name": "Fusion Wave", "element": "combined", "damage": 18, "range": 2, "animation": "wave_leaf", "description": "Tank-grade nature crush" }
       ]
     },
     {
@@ -170,14 +181,15 @@
       "name": "Nature Zone",
       "element": "leaf",
       "secondary": "wind",
-      "hp": 50,
-      "speed": 8,
+      "rarity": "normal",
+      "hp": 48,
+      "speed": 7,
       "move": 3,
       "asset": "12.jpeg",
       "attacks": [
-        { "name": "Nature Heal", "element": "leaf", "damage": 8, "range": 3, "animation": "heal_aura", "description": "Heals allies in range" },
-        { "name": "Whirl Zone", "element": "wind", "damage": 12, "range": 3, "animation": "whirlwind", "description": "Whirlwind push zone" },
-        { "name": "Fusion Zone", "element": "combined", "damage": 14, "range": 3, "animation": "heal_whirl", "description": "Heal + push zone" }
+        { "name": "Nature Heal", "element": "leaf", "damage": 15, "range": 4, "animation": "heal_aura", "description": "Strong party heal aura" },
+        { "name": "Whirl Zone", "element": "wind", "damage": 10, "range": 3, "animation": "whirlwind", "description": "Light wind disruption" },
+        { "name": "Fusion Zone", "element": "combined", "damage": 8, "range": 4, "animation": "heal_whirl", "description": "Heal + light push field" }
       ]
     },
     {
@@ -185,14 +197,15 @@
       "name": "Vine Strike",
       "element": "leaf",
       "secondary": "wind",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "epic",
+      "hp": 33,
+      "speed": 9,
+      "move": 4,
       "asset": "13.jpg",
       "attacks": [
-        { "name": "Sharp Vine", "element": "leaf", "damage": 13, "range": 3, "animation": "vine_strike", "description": "Sharp vine attack" },
-        { "name": "Plant Arm", "element": "leaf", "damage": 15, "range": 3, "animation": "vine_slam", "description": "Plant arm strike" },
-        { "name": "Fusion Vine", "element": "combined", "damage": 16, "range": 3, "animation": "vine_whirl", "description": "Vine + wind hybrid" }
+        { "name": "Sharp Vine", "element": "leaf", "damage": 20, "range": 2, "animation": "vine_strike", "description": "Razor vine at close range" },
+        { "name": "Plant Arm", "element": "leaf", "damage": 24, "range": 1, "animation": "vine_slam", "description": "Maximum damage melee vine" },
+        { "name": "Fusion Vine", "element": "combined", "damage": 18, "range": 2, "animation": "vine_whirl", "description": "Vine assassin combo" }
       ]
     },
     {
@@ -200,14 +213,15 @@
       "name": "Backstab Dash",
       "element": "wind",
       "secondary": "fire",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "legendary",
+      "hp": 28,
+      "speed": 10,
+      "move": 5,
       "asset": "14.jpeg",
       "attacks": [
-        { "name": "Backstab", "element": "wind", "damage": 15, "range": 3, "animation": "backstab", "description": "Backstab from behind" },
-        { "name": "Flame Dash", "element": "fire", "damage": 14, "range": 3, "animation": "dash_fire", "description": "Fire dash attack" },
-        { "name": "Fusion Dash", "element": "combined", "damage": 16, "range": 3, "animation": "dash_backstab", "description": "Dash + backstab" }
+        { "name": "Backstab", "element": "wind", "damage": 24, "range": 1, "animation": "backstab", "description": "Lethal backstab from shadows" },
+        { "name": "Flame Dash", "element": "fire", "damage": 20, "range": 2, "animation": "dash_fire", "description": "Blazing dash strike" },
+        { "name": "Fusion Dash", "element": "combined", "damage": 22, "range": 1, "animation": "dash_backstab", "description": "Ultimate assassin combo" }
       ]
     },
     {
@@ -215,14 +229,15 @@
       "name": "Whirl Trail",
       "element": "wind",
       "secondary": "fire",
-      "hp": 50,
+      "rarity": "normal",
+      "hp": 52,
       "speed": 8,
       "move": 3,
       "asset": "15.jpeg",
       "attacks": [
-        { "name": "Whirl Zone", "element": "wind", "damage": 12, "range": 3, "animation": "whirlwind", "description": "Whirlwind push zone" },
-        { "name": "Burn Trail", "element": "fire", "damage": 13, "range": 3, "animation": "trail_fire", "description": "Leaves fire tiles" },
-        { "name": "Fusion Trail", "element": "combined", "damage": 15, "range": 3, "animation": "whirl_fire", "description": "Whirl + fire trail" }
+        { "name": "Whirl Zone", "element": "wind", "damage": 13, "range": 3, "animation": "whirlwind", "description": "Medium whirlwind push" },
+        { "name": "Burn Trail", "element": "fire", "damage": 11, "range": 4, "animation": "trail_fire", "description": "Extended fire trail" },
+        { "name": "Fusion Trail", "element": "combined", "damage": 16, "range": 3, "animation": "whirl_fire", "description": "Whirl + fire combo" }
       ]
     },
     {
@@ -230,14 +245,15 @@
       "name": "Whirl Splash",
       "element": "wind",
       "secondary": "water",
+      "rarity": "normal",
       "hp": 50,
       "speed": 8,
       "move": 3,
       "asset": "16.jpeg",
       "attacks": [
-        { "name": "Whirl Zone", "element": "wind", "damage": 12, "range": 3, "animation": "whirlwind", "description": "Whirlwind push" },
-        { "name": "Splash Hit", "element": "water", "damage": 14, "range": 3, "animation": "splash_360", "description": "Water splash AoE" },
-        { "name": "Fusion Splash", "element": "combined", "damage": 15, "range": 3, "animation": "splash_whirl", "description": "Push + splash AoE" }
+        { "name": "Whirl Zone", "element": "wind", "damage": 12, "range": 4, "animation": "whirlwind", "description": "Extended whirlwind" },
+        { "name": "Splash Hit", "element": "water", "damage": 15, "range": 3, "animation": "splash_360", "description": "Water splash burst" },
+        { "name": "Fusion Splash", "element": "combined", "damage": 14, "range": 3, "animation": "splash_whirl", "description": "Push + splash mix" }
       ]
     },
     {
@@ -245,14 +261,15 @@
       "name": "Backstab Gust",
       "element": "wind",
       "secondary": "leaf",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "legendary",
+      "hp": 30,
+      "speed": 9,
+      "move": 4,
       "asset": "17.jpeg",
       "attacks": [
-        { "name": "Backstab", "element": "wind", "damage": 15, "range": 3, "animation": "backstab", "description": "Backstab stun attack" },
-        { "name": "Vine Strike", "element": "leaf", "damage": 14, "range": 3, "animation": "vine_strike", "description": "Vine punch strike" },
-        { "name": "Fusion Gust", "element": "combined", "damage": 16, "range": 3, "animation": "backstab_vine", "description": "Backstab + vine" }
+        { "name": "Backstab", "element": "wind", "damage": 22, "range": 2, "animation": "backstab", "description": "Backstab from the shadows" },
+        { "name": "Vine Strike", "element": "leaf", "damage": 20, "range": 3, "animation": "vine_strike", "description": "Long-reach vine strike" },
+        { "name": "Fusion Gust", "element": "combined", "damage": 24, "range": 2, "animation": "backstab_vine", "description": "Maximum damage glass cannon combo" }
       ]
     },
     {
@@ -260,14 +277,15 @@
       "name": "Aura Booster",
       "element": "null",
       "secondary": "null",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "rare",
+      "hp": 55,
+      "speed": 6,
+      "move": 2,
       "asset": "18.jpg",
       "attacks": [
-        { "name": "Glitch Aura", "element": "null", "damage": 12, "range": 3, "animation": "glitch_pulse", "description": "Aura buff + debuff" },
-        { "name": "Boost Pulse", "element": "null", "damage": 14, "range": 3, "animation": "beam_null", "description": "Pulsing boost attack" },
-        { "name": "Fusion Aura", "element": "null", "damage": 15, "range": 3, "animation": "glitch_aura", "description": "Combined aura effect" }
+        { "name": "Glitch Aura", "element": "null", "damage": 12, "range": 4, "animation": "glitch_pulse", "description": "Healing aura buff pulse" },
+        { "name": "Boost Pulse", "element": "null", "damage": 10, "range": 3, "animation": "beam_null", "description": "Supportive energy pulse" },
+        { "name": "Fusion Aura", "element": "null", "damage": 8, "range": 5, "animation": "glitch_aura", "description": "Wide-range support field" }
       ]
     },
     {
@@ -275,14 +293,15 @@
       "name": "Logic Trap",
       "element": "null",
       "secondary": "null",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "epic",
+      "hp": 38,
+      "speed": 7,
+      "move": 2,
       "asset": "19.jpeg",
       "attacks": [
-        { "name": "Digi Shock", "element": "null", "damage": 13, "range": 3, "animation": "beam_null", "description": "Digital shock attack" },
-        { "name": "Logic Break", "element": "null", "damage": 15, "range": 3, "animation": "trap_null", "description": "Trap node damage" },
-        { "name": "Fusion Trap", "element": "null", "damage": 16, "range": 3, "animation": "trap_shock", "description": "Trap + shock combo" }
+        { "name": "Digi Shock", "element": "null", "damage": 12, "range": 5, "animation": "beam_null", "description": "Long-range digital snipe" },
+        { "name": "Logic Break", "element": "null", "damage": 14, "range": 4, "animation": "trap_null", "description": "Trap node from distance" },
+        { "name": "Fusion Trap", "element": "null", "damage": 10, "range": 6, "animation": "trap_shock", "description": "Maximum range null snipe" }
       ]
     },
     {
@@ -290,14 +309,15 @@
       "name": "Rewrite Field",
       "element": "null",
       "secondary": "null",
-      "hp": 50,
-      "speed": 8,
-      "move": 3,
+      "rarity": "legendary",
+      "hp": 28,
+      "speed": 10,
+      "move": 4,
       "asset": "20.jpeg",
       "attacks": [
-        { "name": "Scramble", "element": "null", "damage": 14, "range": 3, "animation": "glitch_wave", "description": "Scramble wave attack" },
-        { "name": "Code Erupt", "element": "null", "damage": 16, "range": 3, "animation": "beam_null", "description": "Code eruption blast" },
-        { "name": "Fusion Field", "element": "null", "damage": 15, "range": 3, "animation": "glitch_field", "description": "Rewrite field effect" }
+        { "name": "Scramble", "element": "null", "damage": 20, "range": 4, "animation": "glitch_wave", "description": "High-damage code scramble" },
+        { "name": "Code Erupt", "element": "null", "damage": 24, "range": 3, "animation": "beam_null", "description": "Devastating code eruption" },
+        { "name": "Fusion Field", "element": "null", "damage": 22, "range": 5, "animation": "glitch_field", "description": "Wide-range code overwrite" }
       ]
     }
   ],
