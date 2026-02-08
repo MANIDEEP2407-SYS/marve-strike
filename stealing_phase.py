@@ -173,8 +173,7 @@ class StealingPhase:
         # ── Stats row ──
         hp_text = f"HP:{data['hp']}"
         spd_text = f"SPD:{data.get('speed', '?')}"
-        rarity_tag = data.get('rarity', 'normal').upper()
-        stats_surf = self.font_small.render(f"{hp_text}  {spd_text}  MV:{data.get('move', 3)}  {rarity_tag}", True, C_TEXT_SEC)
+        stats_surf = self.font_small.render(f"{hp_text}  {spd_text}  MV:{data.get('move', 3)}", True, C_TEXT_SEC)
         sx = x + (CARD_WIDTH - stats_surf.get_width()) // 2
         self.screen.blit(stats_surf, (sx, y + CARD_IMAGE_HEIGHT + 32))
 
@@ -400,14 +399,7 @@ class StealingPhase:
 
     def _card_score(self, card_idx):
         data = CARD_POOL[card_idx]
-        rarity_mult = {"normal": 1.0, "rare": 1.15, "epic": 1.3, "legendary": 1.5}
-        r_mult = rarity_mult.get(data.get("rarity", "normal"), 1.0)
-        base = data["hp"] + sum(a["damage"] for a in data.get("attacks", []))
-        # Factor in mobility and attack range diversity
-        move_bonus = data.get("move", 3) * 3
-        avg_range = sum(a.get("range", 3) for a in data.get("attacks", [])) / max(len(data.get("attacks", [])), 1)
-        range_bonus = avg_range * 2
-        return (base + move_bonus + range_bonus) * r_mult
+        return data["hp"] + sum(a["damage"] for a in data.get("attacks", []))
 
     def cpu_turn(self):
         player_scores = [(self._card_score(ci), i) for i, ci in enumerate(self.player_hand)]
@@ -496,8 +488,7 @@ class StealingPhase:
         card = Card(
             owner=owner, name=data["name"], hp=data["hp"], max_hp=data["hp"],
             attacks=attacks, move_range=data.get("move", 3),
-            element=data["element"], index=slot,
-            rarity=data.get("rarity", "normal")
+            element=data["element"], index=slot
         )
         card.display_hp = card.hp
         return card
